@@ -1,0 +1,921 @@
+#!/usr/bin/ruby
+
+# Includes
+require 'helper.rb'
+
+
+# show variables
+total_num_nics = 12
+
+
+#
+# Display managedServer entry
+#
+def display_server(server)
+
+  puts "<table>"
+
+  puts "<tr><td align=right><b>Hostname:&nbsp;&nbsp;</b></td><td>"+ server['hostName'].to_s + "</td>"
+  puts "<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+  puts                  "<td align=right><b>Description:&nbsp;&nbsp;</b></td><td>"+ server['description'].to_s + "</td>"
+  puts "</tr>"
+
+  puts "<tr><td align=right><b>Location:&nbsp;&nbsp;</b></td><td>"+ server['location'].to_s + "</td>"
+  puts "<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+  puts                  "<td align=right><b>Owner:&nbsp;&nbsp;</b></td><td>"+ server['serverowner'].to_s + "</td>"
+  puts "</tr>"
+
+  puts "<tr><td align=right><b>Environment:&nbsp;&nbsp;</b></td><td>"+ server['environment'].to_s + "</td>"
+  puts "<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+  puts                  "<td align=right><b>Uptime:&nbsp;&nbsp;</b></td><td>"+ server['uptime'].to_s + "</td>"
+  puts "</tr>"
+
+  puts "<tr><td align=right><b>OS Type:&nbsp;&nbsp;</b></td><td>"+ server['operatingSystem'].to_s + "</td>"
+  puts "<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+  puts                  "<td align=right><b>LOM IP:&nbsp;&nbsp;</b></td><td>"+ server['LOM'].to_s + "</td>"
+  puts "</tr>"
+  
+  puts "<tr><td align=right><b>OS Version:&nbsp;&nbsp;</b></td><td>"+ server['osVersion'].to_s + "</td>"
+  puts "<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+  puts                  "<td align=right><b>Audio Profile:&nbsp;&nbsp;</b></td><td>"+ server['auditprofile'].to_s + "</td>"
+  puts "</tr>"
+
+  puts "<tr><td align=right><b>Manufacturer:&nbsp;&nbsp;</b></td><td>"+ server['manufacturer'].to_s + "</td>"
+  puts "<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+  puts                  "<td align=right><b>SNMP Mgr:&nbsp;&nbsp;</b></td><td>"+ server['snmpmanager'].to_s + "</td>"
+  puts "</tr>"
+
+  puts "<tr><td align=right><b>Model:&nbsp;&nbsp;</b></td><td>"+ server['model'].to_s + "</td>"
+  puts "<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+  puts                  "<td align=right><b>IDM Mgr:&nbsp;&nbsp;</b></td><td>"+ server['idmmanager'].to_s + "</td>"
+  puts "</tr>"
+
+  puts "<tr><td align=right><b>Sockets:&nbsp;&nbsp;</b></td><td>"+ server['sockets'].to_s + "</td>"
+  puts "<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+  puts                  "<td align=right><b>Puppet Status:&nbsp;&nbsp;</b></td><td>"+ server['puppetstatus'].to_s + "</td>"
+  puts "</tr>"
+
+  puts "<tr><td align=right><b>Cores:&nbsp;&nbsp;</b></td><td>"+ server['cores'].to_s + "</td>"
+  puts "<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+  puts                  "<td align=right><b>Puppet Last Run:&nbsp;&nbsp;</b></td><td>"+ server['puppetlastrundate'].to_s + "</td>"
+  puts "</tr>"
+
+  puts "<tr><td align=right><b>Memory:&nbsp;&nbsp;</b></td><td>"+ server['memory'].to_s + "</td>"
+  puts "<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+  puts                  "<td align=right><b>serverRoles:&nbsp;&nbsp;</b></td><td>"
+  srcount = 0
+  if !server['serverRole'].nil? then
+    server['serverRole'].each do |srole|
+      if srcount>0 then puts "<br>" end
+      srcount = srcount + 1
+      puts srole.to_s 
+    end
+  end
+  puts "</td>"
+  puts "</tr>"
+
+  #puts "<tr><td>&nbsp;</td><td></td><td></td><td></td><td></td></tr>"
+
+  puts "<tr><td align=right><b>Cobbler Profile:&nbsp;&nbsp;</b></td><td>"+ server['cobblerProfile'].to_s + "</td>"
+  puts "<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+  puts                  "<td align=right><b>Base Channel:&nbsp;&nbsp;</b></td><td>"+ server['rhnBaseChannel'].to_s + "</td>"
+  puts "</tr>"
+
+  puts "<tr><td align=right><b>ActivationKeys:&nbsp;&nbsp;</b></td><td>"
+  akcount = 0
+  if !server['rhnActivationKey'].nil? then
+    server['rhnActivationKey'].each do |ak|
+      if akcount>0 then puts "<br>" end
+      akcount = akcount + 1
+      puts ak.to_s 
+    end
+  end
+  puts "</td>"
+  puts "<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+  puts                  "<td align=right><b>rhnChildChannels:&nbsp;&nbsp;</b></td><td>"
+  chcount = 0
+  if !server['rhnChildChannel'].nil? then
+    server['rhnChildChannel'].each do |channel|
+      if chcount>0 then puts "<br>" end
+      chcount = chcount + 1
+      puts channel.to_s 
+    end
+  end
+  puts "</td>"
+  puts "</tr>"
+
+  #puts "<tr><td>&nbsp;</td><td></td><td></td><td></td><td></td></tr>"
+
+  puts "<tr><td align=right><b>Name Servers:&nbsp;&nbsp;</b></td><td>"
+  nscount = 0
+  if !server['nameServer'].nil? then
+    server['nameServer'].each do |nsvr|
+      if nscount>0 then puts "<br>" end
+      nscount = nscount + 1
+      puts nsvr.to_s 
+    end
+  end
+  puts "</td>"
+  puts "<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+  puts                  "<td align=right><b>Time Servers:&nbsp;&nbsp;</b></td><td>"
+  tscount = 0
+  if !server['timeServer'].nil? then
+    server['timeServer'].each do |tsvr|
+      if tscount>0 then puts "<br>" end
+      tscount = tscount + 1
+      puts tsvr.to_s 
+    end
+  end
+  puts "</td>"
+  puts "</tr>"
+
+
+  puts "</table>"
+
+end
+
+
+#
+# Display disk entry
+#
+def display_disk(disk_entry)
+
+  puts "<tr>"
+  puts "<td align=left><b>&nbsp;&nbsp;" + disk_entry['deviceIndex'].to_s + ")&nbsp;&nbsp;&nbsp;</b></td><td>"+ disk_entry['cn'].to_s + "&nbsp;</td>"
+  puts "<td align=right><b>Size (GB):</b></td><td>"+ disk_entry['size'].to_s + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+  puts "<td align=right><b>Alias:</b></td><td>"+ disk_entry['deviceAlias'].to_s + "&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+  puts "<td align=right><b>Interface:</b></td><td>"+ disk_entry['deviceInterface'].to_s + "&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+  puts "<td align=right><b>Description:</b></td><td>"+ disk_entry['description'].to_s + "</td>"
+  puts "</tr>"
+end
+
+
+#
+# Display nic entry
+#
+def display_nic(nic_entry)
+
+  puts "<tr>"
+  puts "<td align=left><b>&nbsp;&nbsp;" + nic_entry['deviceindex'].to_s + ")&nbsp;&nbsp;</b></td><td>"+ nic_entry['cn'].to_s + "&nbsp;&nbsp;</td>"
+  puts "<td align=right><b>IP Address:</b></td><td>"+ nic_entry['ifcfgipaddress'].to_s + "</td>"
+  puts "<td align=right><b>Netmask:</b></td><td>"+ nic_entry['ifcfgnetmask='].to_s + "&nbsp;</td>"
+  puts "<td align=right><b>Gateway:</b></td><td>"+ nic_entry['ifcfggateway'].to_s + "&nbsp;&nbsp;</td>"
+  puts "<td align=right><b>onBoot:</b></td><td>"+ nic_entry['ifcfgonboot'].to_s + "</td>"
+  puts "</tr>"
+  puts "<tr>"
+  puts "<td></td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+  puts "<td align=right><b>IF Type:</b></td><td>"+ nic_entry['ifcfgtype'].to_s + "</td>"
+  puts "<td align=right><b>mac Address:</b></td><td>"+ nic_entry['ifcfghwaddr'].to_s + "</td>"
+  puts "<td align=right><b>Boot Proto:</b></td><td>"+ nic_entry['ifcfgbootproto'].to_s + "</td>"
+  puts "<td align=right><b>PXEBoot:</b></td><td>"+ nic_entry['pxeBoot'].to_s + "</td>"
+  puts "</tr>"
+  puts "<tr>"
+  puts "<td></td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+  puts "<td align=right><b>vLAN:</b></td><td>"+ nic_entry['ifcfgvlan'].to_s + "</td>"
+  puts "<td align=right><b>Bridge:</b></td><td>"+ nic_entry['ifcfgbridge'].to_s + "</td>"
+  puts "<td align=right><b>Master:</b></td><td>"+ nic_entry['ifcfgmaster'].to_s + "</td>"
+  puts "<td align=right><b>Slave:</b></td><td>"+ nic_entry['ifcfgslave'].to_s + "</td>"
+  puts "</tr>"
+  puts "<tr>"
+  puts "<td></td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+  puts "<td align=right><b>ethTool Options:</b></td><td>"+ nic_entry['ifcfgethtoolopts'].to_s + "</td>"
+  puts "<td align=right><b>Bonding Options:</b></td><td>"+ nic_entry['ifcfgbondingopts'].to_s + "</td>"
+  puts "<td align=right><b>User Control:</b></td><td>"+ nic_entry['ifcfguserctl'].to_s + "</td>"
+  puts "<td align=right><b>IPv6 Init:</b></td><td>"+ nic_entry['ifcfgipv6init'].to_s + "</td>"
+  puts "</tr>"
+  puts "<tr>"
+  puts "<td></td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+  puts "<td align=right><b>Description:</b></td><td colspan=3>"+ nic_entry['description'].to_s + "</td>"
+  puts "</tr>"
+end
+
+
+# 
+# Main
+#
+output_page_header_list
+
+cgi = CGI.new
+params = cgi.params # hash with field-names and values
+
+fqdn = params['fqdn'].to_s if params.has_key?"fqdn"
+
+read_from_cmdb=true
+managedserver = Hash.new
+disk1_entry = Hash.new
+disk2_entry = Hash.new
+nic1_entry = Hash.new
+nic2_entry = Hash.new
+nic3_entry = Hash.new
+nic4_entry = Hash.new
+nic5_entry = Hash.new
+nic6_entry = Hash.new
+nic7_entry = Hash.new
+nic8_entry = Hash.new
+nic9_entry = Hash.new
+nic10_entry = Hash.new
+nic11_entry = Hash.new
+nic12_entry = Hash.new
+
+#Check to see if there was a form post:
+if !cgi['posted'].empty?
+then
+  # Form Post so populate entries from form data..
+  read_from_cmdb=nil
+  post_fields_valid=true
+
+  if params.has_key?"hostname" and !params['hostname'].to_s.empty? then
+    #puts "<p>hostname='"+params['hostname'].to_s+"'<br>"
+    cn = params['hostname'].to_s.downcase.split(".").first 
+    #puts "<p>cn='"+cn+"'<br>"
+  else
+    post_fields_valid=nil
+    puts "<font size='+1' color='red'>Error, Hostname field cannot be blank!</font><br><br>"
+    puts "<form><input type='button' value='Back to form' onclick='history.go(-1);return true;'></form>"
+    exit 1
+  end
+  dn = "cn="+cn+","+$basedomain
+  #puts "<p><font size='+1'>dn: '"+dn+"'</font><br><br>"
+  fqdn = params['hostname'].to_s.downcase
+  #puts "<p><font size='+1'>Hostname: '"+fqdn+"':</font><br><br>"
+  
+  # hostname
+  # location
+  # environment
+  # operatingsystem
+  # osversion
+  # manufacturer
+  # model
+  # sockets
+  # cores
+  # memory
+  #
+  # description
+  # serverowner
+  # uptime
+  # LOM
+  # auditprofile
+  # snmpmanager
+  # idmmanager
+  # puppetstatus
+  # puppetlastrundate
+  #
+  # cobblerprofile
+  # rhnbasechannel
+  #
+  # serverrole (list)
+  # rhnactivationkey (list)
+  # rhnchildchannel (list)
+  # nameserver (list)
+  # timeserver (list)
+  #
+  managedserver[:objectclass]       = "managedServer"
+  managedserver[:cn]                = cn
+  managedserver[:hostName]          = fqdn
+  if params['location'].to_s.empty? then
+    post_fields_valid=nil
+    puts "<font size='+1' color='red'>Error, Location field cannot be blank</font></br>"
+  else 
+    managedserver[:location]	    = params['location'].to_s end
+  managedserver[:environment]	    = params['environment'].to_s       if !params['environment'].to_s.empty?
+  managedserver[:operatingSystem]   = params['operatingSystem'].to_s   if !params['operatingSystem'].to_s.empty?
+  managedserver[:osVersion]         = params['osVersion'].to_s         if !params['osVersion'].to_s.empty?
+  managedserver[:manufacturer]      = params['manufacturer'].to_s      if !params['manufacturer'].to_s.empty?
+  managedserver[:model]	            = params['model'].to_s             if !params['model'].to_s.empty?
+  managedserver[:sockets]	    = params['sockets'].to_s           if !params['sockets'].to_s.empty?
+  managedserver[:cores]	            = params['cores'].to_s             if !params['cores'].to_s.empty?
+  managedserver[:memory]	    = params['memory'].to_s            if !params['memory'].to_s.empty?
+
+  managedserver[:description]       = params['description'].to_s       if !params['description'].to_s.empty?
+  managedserver[:serverOwner]	    = params['serverOwner'].to_s       if !params['serverOwner'].to_s.empty?
+  managedserver[:uptime] 	    = params['uptime'].to_s            if !params['uptime'].to_s.empty?
+  managedserver[:lom]	            = params['lom'].to_s               if !params['lom'].to_s.empty?
+  managedserver[:auditprofile]	    = params['auditprofile'].to_s      if !params['auditprofile'].to_s.empty?
+  managedserver[:snmpmanager]	    = params['snmpmanager'].to_s       if !params['snmpmanager'].to_s.empty?
+  managedserver[:idmmanager]	    = params['idmmanager'].to_s        if !params['idmmanager'].to_s.empty?
+  managedserver[:puppetstatus]	    = params['puppetstatus'].to_s      if !params['puppetstatus'].to_s.empty?
+  managedserver[:puppetlastrundate] = params['puppetlastrundate'].to_s if !params['puppetlastrundate'].to_s.empty?
+
+  managedserver[:cobblerProfile]    = params['cobblerProfile'].to_s    if !params['cobblerProfile'].to_s.empty?
+  managedserver[:rhnBaseChannel]    = params['rhnBaseChannel'].to_s    if !params['rhnBaseChannel'].to_s.empty?
+
+  if params['serverRole'].to_s.empty? then
+    post_fields_valid=nil
+    puts "<font size='+1' color='red'>Error, serverRole needs at least one value</font></br>"
+  else
+    managedserver[:serverRole] = Array.new(params['serverRole'].dup) end
+
+  managedserver[:rhnChildChannel]   = Array.new(params['rhnChildChannel'].dup)  if !params['rhnChildChannel'].to_s.empty?
+
+  if params['rhnActivationKey'].to_s.empty? then
+    post_fields_valid=nil
+    puts "<font size='+1' color='red'>Error, ActivationKey field cannot be blank</font></br>"
+  else
+    managedserver[:rhnActivationKey] = Array.new(params['rhnActivationKey'].dup) end
+
+  managedserver[:nameServer]        = Array.new(params['nameServer'].dup)       if !params['nameServer'].to_s.empty?
+  managedserver[:timeServer]        = Array.new(params['timeServer'].dup)       if !params['timeServer'].to_s.empty?
+
+  managedserver[:virtual]           = "FALSE"
+
+
+  # DISK1
+  #
+  # deviceindex
+  # objectClass
+  # cn
+  # size=
+  # deviceAlias
+  # deviceinterface
+  # description
+  #
+  disk1_entry[:deviceIndex]        = "1"
+  disk1_entry[:objectclass]        = "storageDevice"
+  disk1_entry[:cn]                 = params['disk1_cn'].to_s if !params['disk1_cn'].to_s.empty?
+  if params['disk1_size'].to_s.empty? then
+    post_fields_valid=nil
+    puts "<font size='+1' color='red'>Error, DISK1 size field cannot be blank</font></br>"
+  else 
+    disk1_entry[:size]             = params['disk1_size'].to_s end
+  if params['disk1_deviceAlias'].to_s.empty? then
+    post_fields_valid=nil
+    puts "<font size='+1' color='red'>Error, DISK1 deviceAlias field cannot be blank</font></br>"
+  else 
+    disk1_entry[:deviceAlias]      = params['disk1_deviceAlias'].to_s end
+  if params['disk1_deviceInterface'].to_s.empty? then
+    post_fields_valid=nil
+    puts "<font size='+1' color='red'>Error, DISK1 deviceInterface field cannot be blank</font><br>"
+  else 
+    disk1_entry[:deviceInterface]  = params['disk1_deviceInterface'].to_s end
+  disk1_entry[:description]        = params['disk1_description'].to_s if !params['disk1_description'].to_s.empty?
+
+  # DISK2
+  disk2_entry[:deviceIndex]        = "2"
+  disk2_entry[:objectclass]        = "storageDevice"
+  if !params['disk2_cn'].to_s.empty? and not ["--"].include?(params['disk2_cn'].to_s) then
+    disk2_entry[:cn]               = params['disk2_cn'].to_s
+  else
+    disk2_entry[:cn]               = "--"
+  end
+  if params['disk2_size'].to_s.empty? and not ["--"].include?(params['disk2_cn'].to_s) then
+    post_fields_valid=nil
+    puts "<font size='+1' color='red'>Error, DISK2 size field cannot be blank</font></br>"
+  else 
+    disk2_entry[:size]             = params['disk2_size'].to_s end
+  if params['disk2_deviceAlias'].to_s.empty? and not ["--"].include?(params['disk2_cn'].to_s) then
+    post_fields_valid=nil
+    puts "<font size='+1' color='red'>Error, DISK2 deviceAlias field cannot be blank</font></br>"
+  else 
+    disk2_entry[:deviceAlias]      = params['disk2_deviceAlias'].to_s end
+  if params['disk2_deviceInterface'].to_s.empty? and not ["--"].include?(params['disk2_cn'].to_s) then
+    post_fields_valid=nil
+    puts "<font size='+1' color='red'>Error, DISK2 deviceInterface field cannot be blank</font><br>"
+  else 
+    disk2_entry[:deviceInterface]  = params['disk2_deviceInterface'].to_s end
+  disk2_entry[:description]        = params['disk2_description'].to_s if !params['disk2_description'].to_s.empty?
+
+
+  # NIC1
+  #
+  # objectclass
+  # deviceindex
+  # cn
+  # ifcfgipaddress
+  # ifcfgnetmask
+  # ifcfggateway
+  # ifcfghwaddr
+  #
+  # ifcfgtype
+  # ifcfgonboot
+  # ifcfgbootproto
+  # pxeboot
+  #
+  # ifcfgvlan
+  # ifcfgbridge
+  # ifcfgmaster
+  # ifcfgslave
+  #
+  # ifcfgbondingopts
+  # ifcfgethtoolopts
+  # ifcfguserctl
+  # ifcfgipv6init
+  #
+  # description
+  #
+  nic1_entry[:deviceIndex]         = "1"
+  nic1_entry[:objectclass]         = "networkDevice"
+  nic1_entry[:cn]                  = params['nic1_cn'].to_s if !params['nic1_cn'].to_s.empty?
+  if params['nic1_ifcfgipaddress'].to_s.empty? then
+    post_fields_valid=nil
+    puts "<font size='+1' color='red'>Error, NIC1 IP Address field cannot be blank</font><br>"
+  else 
+    nic1_entry[:ifcfgipaddress]    = params['nic1_ifcfgipaddress'].to_s end
+  if params['nic1_ifcfgnetmask'].to_s.empty? then
+    post_fields_valid=nil
+    puts "<font size='+1' color='red'>Error, NIC1 Netmask field cannot be blank</font><br>"
+  else 
+    nic1_entry[:ifcfgnetmask] = params['nic1_ifcfgnetmask'].to_s end
+  if params['nic1_ifcfggateway'].to_s.empty? then
+    post_fields_valid=nil
+    puts "<font size='+1' color='red'>Error, NIC1 Gateway field cannot be blank</font><br>"
+  else 
+    nic1_entry[:ifcfggateway]      = params['nic1_ifcfggateway'].to_s end
+  nic1_entry[:ifcfghwaddr]         = params['nic1_ifcfghwaddr'].to_s if !params['nic1_ifcfghwaddr'].to_s.empty?
+  if params['nic1_ifcfgtype'].to_s.empty? then
+    post_fields_valid=nil
+    puts "<font size='+1' color='red'>Error, NIC1 IF Type field cannot be blank</font><br>"
+  else 
+    nic1_entry[:ifcfgtype]         = params['nic1_ifcfgtype'].to_s end
+  if params['nic1_ifcfgonboot'].to_s.empty? then nic1_entry[:ifcfgonboot] = "FALSE" else nic1_entry[:ifcfgonboot] = "TRUE" end
+  nic1_entry[:ifcfgbootproto]      = params['nic1_ifcfgbootproto'].to_s if !params['nic1_ifcfgbootproto'].to_s.empty?
+  if params['nic1_pxeBoot'].to_s.empty? then nic1_entry[:pxeBoot] = "FALSE" else nic1_entry[:pxeBoot] = "TRUE" end
+  if params['nic1_ifcfgvlan'].to_s.empty? then nic1_entry[:ifcfgvlan] = "FALSE" else nic1_entry[:ifcfgvlan] = "TRUE" end
+  nic1_entry[:ifcfgbridge]         = params['nic1_ifcfgbridge'].to_s if !params['nic1_ifcfgbridge'].to_s.empty?
+  nic1_entry[:ifcfgmaster]         = params['nic1_ifcfgmaster'].to_s if !params['nic1_ifcfgmaster'].to_s.empty?
+  if params['nic1_ifcfgslave'].to_s.empty? then nic1_entry[:ifcfgslave] = "FALSE" else nic1_entry[:ifcfgslave] = "TRUE" end
+  nic1_entry[:ifcfgbondingopts]    = params['nic1_ifcfgbondingopts'].to_s if !params['nic1_ifcfgbondingopts'].to_s.empty?
+  nic1_entry[:ifcfgethtoolopts]    = params['nic1_ifcfgethtoolopts'].to_s if !params['nic1_ifcfgethtoolopts'].to_s.empty?
+  if params['nic1_ifcfguserctl'].to_s.empty? then nic1_entry[:ifcfguserctl] = "FALSE" else nic1_entry[:ifcfguserctl] = "TRUE" end
+  if params['nic1_ifcfgipv6init'].to_s.empty? then nic1_entry[:ifcfgipv6init] = "FALSE" else nic1_entry[:ifcfgipv6init] = "TRUE" end
+  nic1_entry[:description]         = params['nic1_description'].to_s if !params['nic1_description'].to_s.empty?
+
+  # NIC2
+  nic2_entry[:deviceIndex]         = "2"
+  nic2_entry[:objectclass]         = "networkDevice"
+  nic2_entry[:cn]                  = params['nic2_cn'].to_s if !params['nic2_cn'].to_s.empty?
+  if params['nic2_ifcfgipaddress'].to_s.empty? and not ["--"].include?(params['nic2_cn'].to_s) then
+    post_fields_valid=nil
+    puts "<font size='+1' color='red'>Error, NIC2 IP Address field cannot be blank</font><br>"
+  else 
+    nic2_entry[:ifcfgipaddress]    = params['nic2_ifcfgipaddress'].to_s end
+  if params['nic2_ifcfgnetmask'].to_s.empty? and not ["--"].include?(params['nic2_cn'].to_s) then
+    post_fields_valid=nil
+    puts "<font size='+1' color='red'>Error, NIC2 Netmask field cannot be blank</font><br>"
+  else 
+    nic2_entry[:ifcfgnetmask] = params['nic2_ifcfgnetmask'].to_s end
+  if !params['nic2_ifcfggateway'].to_s.empty? and not ["--"].include?(params['nic2_cn'].to_s)then
+    nic2_entry[:ifcfggateway]      = params['nic2_ifcfggateway'].to_s end
+  nic2_entry[:ifcfghwaddr]         = params['nic2_ifcfghwaddr'].to_s if !params['nic2_ifcfghwaddr'].to_s.empty?
+  if params['nic2_ifcfgtype'].to_s.empty? and not ["--"].include?(params['nic2_cn'].to_s) then
+    post_fields_valid=nil
+    puts "<font size='+1' color='red'>Error, NIC2 IF Type field cannot be blank</font><br>"
+  else 
+    nic2_entry[:ifcfgtype]         = params['nic2_ifcfgtype'].to_s end
+  if params['nic2_ifcfgonboot'].to_s.empty? then nic2_entry[:ifcfgonboot] = "FALSE" else nic2_entry[:ifcfgonboot] = "TRUE" end
+  nic2_entry[:ifcfgbootproto]      = params['nic2_ifcfgbootproto'].to_s if !params['nic2_ifcfgbootproto'].to_s.empty?
+  if params['nic2_pxeBoot'].to_s.empty? then nic2_entry[:pxeBoot] = "FALSE" else nic2_entry[:pxeBoot] = "TRUE" end
+  if params['nic2_ifcfgvlan'].to_s.empty? then nic2_entry[:ifcfgvlan] = "FALSE" else nic2_entry[:ifcfgvlan] = "TRUE" end
+  nic2_entry[:ifcfgbridge]         = params['nic2_ifcfgbridge'].to_s if !params['nic2_ifcfgbridge'].to_s.empty?
+  nic2_entry[:ifcfgmaster]         = params['nic2_ifcfgmaster'].to_s if !params['nic2_ifcfgmaster'].to_s.empty?
+  if params['nic2_ifcfgslave'].to_s.empty? then nic2_entry[:ifcfgslave] = "FALSE" else nic2_entry[:ifcfgslave] = "TRUE" end
+  nic2_entry[:ifcfgbondingopts]    = params['nic2_ifcfgbondingopts'].to_s if !params['nic2_ifcfgbondingopts'].to_s.empty?
+  nic2_entry[:ifcfgethtoolopts]    = params['nic2_ifcfgethtoolopts'].to_s if !params['nic2_ifcfgethtoolopts'].to_s.empty?
+  if params['nic2_ifcfguserctl'].to_s.empty? then nic2_entry[:ifcfguserctl] = "FALSE" else nic2_entry[:ifcfguserctl] = "TRUE" end
+  if params['nic2_ifcfgipv6init'].to_s.empty? then nic2_entry[:ifcfgipv6init] = "FALSE" else nic2_entry[:ifcfgipv6init] = "TRUE" end
+  nic2_entry[:description]         = params['nic2_description'].to_s if !params['nic2_description'].to_s.empty?
+
+  # NIC3
+  nic3_entry[:deviceIndex]         = "3"
+  nic3_entry[:objectclass]         = "networkDevice"
+  nic3_entry[:cn]                  = params['nic3_cn'].to_s if !params['nic3_cn'].to_s.empty?
+  if params['nic3_ifcfgipaddress'].to_s.empty? and not ["--"].include?(params['nic3_cn'].to_s) then
+    post_fields_valid=nil
+    puts "<font size='+1' color='red'>Error, NIC3 IP Address field cannot be blank</font><br>"
+  else 
+    nic3_entry[:ifcfgipaddress]    = params['nic3_ifcfgipaddress'].to_s end
+  if params['nic3_ifcfgnetmask'].to_s.empty? and not ["--"].include?(params['nic3_cn'].to_s) then
+    post_fields_valid=nil
+    puts "<font size='+1' color='red'>Error, NIC3 Netmask field cannot be blank</font><br>"
+  else 
+    nic3_entry[:ifcfgnetmask] = params['nic3_ifcfgnetmask'].to_s end
+  if !params['nic3_ifcfggateway'].to_s.empty? and not ["--"].include?(params['nic3_cn'].to_s)then
+    nic3_entry[:ifcfggateway]      = params['nic3_ifcfggateway'].to_s end
+  nic3_entry[:ifcfghwaddr]         = params['nic3_ifcfghwaddr'].to_s if !params['nic3_ifcfghwaddr'].to_s.empty?
+  if params['nic3_ifcfgtype'].to_s.empty? and not ["--"].include?(params['nic3_cn'].to_s) then
+    post_fields_valid=nil
+    puts "<font size='+1' color='red'>Error, NIC3 IF Type field cannot be blank</font><br>"
+  else 
+    nic3_entry[:ifcfgtype]         = params['nic3_ifcfgtype'].to_s end
+  if params['nic3_ifcfgonboot'].to_s.empty? then nic3_entry[:ifcfgonboot] = "FALSE" else nic3_entry[:ifcfgonboot] = "TRUE" end
+  nic3_entry[:ifcfgbootproto]      = params['nic3_ifcfgbootproto'].to_s if !params['nic3_ifcfgbootproto'].to_s.empty?
+  if params['nic3_pxeBoot'].to_s.empty? then nic3_entry[:pxeBoot] = "FALSE" else nic3_entry[:pxeBoot] = "TRUE" end
+  if params['nic3_ifcfgvlan'].to_s.empty? then nic3_entry[:ifcfgvlan] = "FALSE" else nic3_entry[:ifcfgvlan] = "TRUE" end
+  nic3_entry[:ifcfgbridge]         = params['nic3_ifcfgbridge'].to_s if !params['nic3_ifcfgbridge'].to_s.empty?
+  nic3_entry[:ifcfgmaster]         = params['nic3_ifcfgmaster'].to_s if !params['nic3_ifcfgmaster'].to_s.empty?
+  if params['nic3_ifcfgslave'].to_s.empty? then nic3_entry[:ifcfgslave] = "FALSE" else nic3_entry[:ifcfgslave] = "TRUE" end
+  nic3_entry[:ifcfgbondingopts]    = params['nic3_ifcfgbondingopts'].to_s if !params['nic3_ifcfgbondingopts'].to_s.empty?
+  nic3_entry[:ifcfgethtoolopts]    = params['nic3_ifcfgethtoolopts'].to_s if !params['nic3_ifcfgethtoolopts'].to_s.empty?
+  if params['nic3_ifcfguserctl'].to_s.empty? then nic3_entry[:ifcfguserctl] = "FALSE" else nic3_entry[:ifcfguserctl] = "TRUE" end
+  if params['nic3_ifcfgipv6init'].to_s.empty? then nic3_entry[:ifcfgipv6init] = "FALSE" else nic3_entry[:ifcfgipv6init] = "TRUE" end
+  nic3_entry[:description]         = params['nic3_description'].to_s if !params['nic3_description'].to_s.empty?
+
+  # NIC4
+  nic4_entry[:deviceIndex]         = "4"
+  nic4_entry[:objectclass]         = "networkDevice"
+  nic4_entry[:cn]                  = params['nic4_cn'].to_s if !params['nic4_cn'].to_s.empty?
+  if params['nic4_ifcfgipaddress'].to_s.empty? and not ["--"].include?(params['nic4_cn'].to_s) then
+    post_fields_valid=nil
+    puts "<font size='+1' color='red'>Error, NIC4 IP Address field cannot be blank</font><br>"
+  else 
+    nic4_entry[:ifcfgipaddress]    = params['nic4_ifcfgipaddress'].to_s end
+  if params['nic4_ifcfgnetmask'].to_s.empty? and not ["--"].include?(params['nic4_cn'].to_s) then
+    post_fields_valid=nil
+    puts "<font size='+1' color='red'>Error, NIC4 Netmask field cannot be blank</font><br>"
+  else 
+    nic4_entry[:ifcfgnetmask] = params['nic4_ifcfgnetmask'].to_s end
+  if !params['nic4_ifcfggateway'].to_s.empty? and not ["--"].include?(params['nic4_cn'].to_s)then
+    nic4_entry[:ifcfggateway]      = params['nic4_ifcfggateway'].to_s end
+  nic4_entry[:ifcfghwaddr]         = params['nic4_ifcfghwaddr'].to_s if !params['nic4_ifcfghwaddr'].to_s.empty?
+  if params['nic4_ifcfgtype'].to_s.empty? and not ["--"].include?(params['nic4_cn'].to_s) then
+    post_fields_valid=nil
+    puts "<font size='+1' color='red'>Error, NIC4 IF Type field cannot be blank</font><br>"
+  else 
+    nic4_entry[:ifcfgtype]         = params['nic4_ifcfgtype'].to_s end
+  if params['nic4_ifcfgonboot'].to_s.empty? then nic4_entry[:ifcfgonboot] = "FALSE" else nic4_entry[:ifcfgonboot] = "TRUE" end
+  nic4_entry[:ifcfgbootproto]      = params['nic4_ifcfgbootproto'].to_s if !params['nic4_ifcfgbootproto'].to_s.empty?
+  if params['nic4_pxeBoot'].to_s.empty? then nic4_entry[:pxeBoot] = "FALSE" else nic4_entry[:pxeBoot] = "TRUE" end
+  if params['nic4_ifcfgvlan'].to_s.empty? then nic4_entry[:ifcfgvlan] = "FALSE" else nic4_entry[:ifcfgvlan] = "TRUE" end
+  nic4_entry[:ifcfgbridge]         = params['nic4_ifcfgbridge'].to_s if !params['nic4_ifcfgbridge'].to_s.empty?
+  nic4_entry[:ifcfgmaster]         = params['nic4_ifcfgmaster'].to_s if !params['nic4_ifcfgmaster'].to_s.empty?
+  if params['nic4_ifcfgslave'].to_s.empty? then nic4_entry[:ifcfgslave] = "FALSE" else nic4_entry[:ifcfgslave] = "TRUE" end
+  nic4_entry[:ifcfgbondingopts]    = params['nic4_ifcfgbondingopts'].to_s if !params['nic4_ifcfgbondingopts'].to_s.empty?
+  nic4_entry[:ifcfgethtoolopts]    = params['nic4_ifcfgethtoolopts'].to_s if !params['nic4_ifcfgethtoolopts'].to_s.empty?
+  if params['nic4_ifcfguserctl'].to_s.empty? then nic4_entry[:ifcfguserctl] = "FALSE" else nic4_entry[:ifcfguserctl] = "TRUE" end
+  if params['nic4_ifcfgipv6init'].to_s.empty? then nic4_entry[:ifcfgipv6init] = "FALSE" else nic4_entry[:ifcfgipv6init] = "TRUE" end
+  nic4_entry[:description]         = params['nic4_description'].to_s if !params['nic4_description'].to_s.empty?
+
+  # NIC5
+  nic5_entry[:deviceIndex]         = "5"
+  nic5_entry[:objectclass]         = "networkDevice"
+  nic5_entry[:cn]                  = params['nic5_cn'].to_s if !params['nic5_cn'].to_s.empty?
+  if params['nic5_ifcfgipaddress'].to_s.empty? and not ["--"].include?(params['nic5_cn'].to_s) then
+    post_fields_valid=nil
+    puts "<font size='+1' color='red'>Error, NIC5 IP Address field cannot be blank</font><br>"
+  else 
+    nic5_entry[:ifcfgipaddress]    = params['nic5_ifcfgipaddress'].to_s end
+  if params['nic5_ifcfgnetmask'].to_s.empty? and not ["--"].include?(params['nic5_cn'].to_s) then
+    post_fields_valid=nil
+    puts "<font size='+1' color='red'>Error, NIC5 Netmask field cannot be blank</font><br>"
+  else 
+    nic5_entry[:ifcfgnetmask] = params['nic5_ifcfgnetmask'].to_s end
+  if !params['nic5_ifcfggateway'].to_s.empty? and not ["--"].include?(params['nic5_cn'].to_s)then
+    nic5_entry[:ifcfggateway]      = params['nic5_ifcfggateway'].to_s end
+  nic5_entry[:ifcfghwaddr]         = params['nic5_ifcfghwaddr'].to_s if !params['nic5_ifcfghwaddr'].to_s.empty?
+  if params['nic5_ifcfgtype'].to_s.empty? and not ["--"].include?(params['nic5_cn'].to_s) then
+    post_fields_valid=nil
+    puts "<font size='+1' color='red'>Error, NIC5 IF Type field cannot be blank</font><br>"
+  else 
+    nic5_entry[:ifcfgtype]         = params['nic5_ifcfgtype'].to_s end
+  if params['nic5_ifcfgonboot'].to_s.empty? then nic5_entry[:ifcfgonboot] = "FALSE" else nic5_entry[:ifcfgonboot] = "TRUE" end
+  nic5_entry[:ifcfgbootproto]      = params['nic5_ifcfgbootproto'].to_s if !params['nic5_ifcfgbootproto'].to_s.empty?
+  if params['nic5_pxeBoot'].to_s.empty? then nic5_entry[:pxeBoot] = "FALSE" else nic5_entry[:pxeBoot] = "TRUE" end
+  if params['nic5_ifcfgvlan'].to_s.empty? then nic5_entry[:ifcfgvlan] = "FALSE" else nic5_entry[:ifcfgvlan] = "TRUE" end
+  nic5_entry[:ifcfgbridge]         = params['nic5_ifcfgbridge'].to_s if !params['nic5_ifcfgbridge'].to_s.empty?
+  nic5_entry[:ifcfgmaster]         = params['nic5_ifcfgmaster'].to_s if !params['nic5_ifcfgmaster'].to_s.empty?
+  if params['nic5_ifcfgslave'].to_s.empty? then nic5_entry[:ifcfgslave] = "FALSE" else nic5_entry[:ifcfgslave] = "TRUE" end
+  nic5_entry[:ifcfgbondingopts]    = params['nic5_ifcfgbondingopts'].to_s if !params['nic5_ifcfgbondingopts'].to_s.empty?
+  nic5_entry[:ifcfgethtoolopts]    = params['nic5_ifcfgethtoolopts'].to_s if !params['nic5_ifcfgethtoolopts'].to_s.empty?
+  if params['nic5_ifcfguserctl'].to_s.empty? then nic5_entry[:ifcfguserctl] = "FALSE" else nic5_entry[:ifcfguserctl] = "TRUE" end
+  if params['nic5_ifcfgipv6init'].to_s.empty? then nic5_entry[:ifcfgipv6init] = "FALSE" else nic5_entry[:ifcfgipv6init] = "TRUE" end
+  nic5_entry[:description]         = params['nic5_description'].to_s if !params['nic5_description'].to_s.empty?
+
+  # NIC6
+  nic6_entry[:deviceIndex]         = "6"
+  nic6_entry[:objectclass]         = "networkDevice"
+  nic6_entry[:cn]                  = params['nic6_cn'].to_s if !params['nic6_cn'].to_s.empty?
+  if params['nic6_ifcfgipaddress'].to_s.empty? and not ["--"].include?(params['nic6_cn'].to_s) then
+    post_fields_valid=nil
+    puts "<font size='+1' color='red'>Error, NIC6 IP Address field cannot be blank</font><br>"
+  else 
+    nic6_entry[:ifcfgipaddress]    = params['nic6_ifcfgipaddress'].to_s end
+  if params['nic6_ifcfgnetmask'].to_s.empty? and not ["--"].include?(params['nic6_cn'].to_s) then
+    post_fields_valid=nil
+    puts "<font size='+1' color='red'>Error, NIC6 Netmask field cannot be blank</font><br>"
+  else 
+    nic6_entry[:ifcfgnetmask] = params['nic6_ifcfgnetmask'].to_s end
+  if !params['nic6_ifcfggateway'].to_s.empty? and not ["--"].include?(params['nic6_cn'].to_s)then
+    nic6_entry[:ifcfggateway]      = params['nic6_ifcfggateway'].to_s end
+  nic6_entry[:ifcfghwaddr]         = params['nic6_ifcfghwaddr'].to_s if !params['nic6_ifcfghwaddr'].to_s.empty?
+  if params['nic6_ifcfgtype'].to_s.empty? and not ["--"].include?(params['nic6_cn'].to_s) then
+    post_fields_valid=nil
+    puts "<font size='+1' color='red'>Error, NIC6 IF Type field cannot be blank</font><br>"
+  else 
+    nic6_entry[:ifcfgtype]         = params['nic6_ifcfgtype'].to_s end
+  if params['nic6_ifcfgonboot'].to_s.empty? then nic6_entry[:ifcfgonboot] = "FALSE" else nic6_entry[:ifcfgonboot] = "TRUE" end
+  nic6_entry[:ifcfgbootproto]      = params['nic6_ifcfgbootproto'].to_s if !params['nic6_ifcfgbootproto'].to_s.empty?
+  if params['nic6_pxeBoot'].to_s.empty? then nic6_entry[:pxeBoot] = "FALSE" else nic6_entry[:pxeBoot] = "TRUE" end
+  if params['nic6_ifcfgvlan'].to_s.empty? then nic6_entry[:ifcfgvlan] = "FALSE" else nic6_entry[:ifcfgvlan] = "TRUE" end
+  nic6_entry[:ifcfgbridge]         = params['nic6_ifcfgbridge'].to_s if !params['nic6_ifcfgbridge'].to_s.empty?
+  nic6_entry[:ifcfgmaster]         = params['nic6_ifcfgmaster'].to_s if !params['nic6_ifcfgmaster'].to_s.empty?
+  if params['nic6_ifcfgslave'].to_s.empty? then nic6_entry[:ifcfgslave] = "FALSE" else nic6_entry[:ifcfgslave] = "TRUE" end
+  nic6_entry[:ifcfgbondingopts]    = params['nic6_ifcfgbondingopts'].to_s if !params['nic6_ifcfgbondingopts'].to_s.empty?
+  nic6_entry[:ifcfgethtoolopts]    = params['nic6_ifcfgethtoolopts'].to_s if !params['nic6_ifcfgethtoolopts'].to_s.empty?
+  if params['nic6_ifcfguserctl'].to_s.empty? then nic6_entry[:ifcfguserctl] = "FALSE" else nic6_entry[:ifcfguserctl] = "TRUE" end
+  if params['nic6_ifcfgipv6init'].to_s.empty? then nic6_entry[:ifcfgipv6init] = "FALSE" else nic6_entry[:ifcfgipv6init] = "TRUE" end
+  nic6_entry[:description]         = params['nic6_description'].to_s if !params['nic6_description'].to_s.empty?
+
+  # NIC7
+  nic7_entry[:deviceIndex]         = "7"
+  nic7_entry[:objectclass]         = "networkDevice"
+  nic7_entry[:cn]                  = params['nic7_cn'].to_s if !params['nic7_cn'].to_s.empty?
+  if params['nic7_ifcfgipaddress'].to_s.empty? and not ["--"].include?(params['nic7_cn'].to_s) then
+    post_fields_valid=nil
+    puts "<font size='+1' color='red'>Error, NIC7 IP Address field cannot be blank</font><br>"
+  else 
+    nic7_entry[:ifcfgipaddress]    = params['nic7_ifcfgipaddress'].to_s end
+  if params['nic7_ifcfgnetmask'].to_s.empty? and not ["--"].include?(params['nic7_cn'].to_s) then
+    post_fields_valid=nil
+    puts "<font size='+1' color='red'>Error, NIC7 Netmask field cannot be blank</font><br>"
+  else 
+    nic7_entry[:ifcfgnetmask] = params['nic7_ifcfgnetmask'].to_s end
+  if !params['nic7_ifcfggateway'].to_s.empty? and not ["--"].include?(params['nic7_cn'].to_s)then
+    nic7_entry[:ifcfggateway]      = params['nic7_ifcfggateway'].to_s end
+  nic7_entry[:ifcfghwaddr]         = params['nic7_ifcfghwaddr'].to_s if !params['nic7_ifcfghwaddr'].to_s.empty?
+  if params['nic7_ifcfgtype'].to_s.empty? and not ["--"].include?(params['nic7_cn'].to_s) then
+    post_fields_valid=nil
+    puts "<font size='+1' color='red'>Error, NIC7 IF Type field cannot be blank</font><br>"
+  else 
+    nic7_entry[:ifcfgtype]         = params['nic7_ifcfgtype'].to_s end
+  if params['nic7_ifcfgonboot'].to_s.empty? then nic7_entry[:ifcfgonboot] = "FALSE" else nic7_entry[:ifcfgonboot] = "TRUE" end
+  nic7_entry[:ifcfgbootproto]      = params['nic7_ifcfgbootproto'].to_s if !params['nic7_ifcfgbootproto'].to_s.empty?
+  if params['nic7_pxeBoot'].to_s.empty? then nic7_entry[:pxeBoot] = "FALSE" else nic7_entry[:pxeBoot] = "TRUE" end
+  if params['nic7_ifcfgvlan'].to_s.empty? then nic7_entry[:ifcfgvlan] = "FALSE" else nic7_entry[:ifcfgvlan] = "TRUE" end
+  nic7_entry[:ifcfgbridge]         = params['nic7_ifcfgbridge'].to_s if !params['nic7_ifcfgbridge'].to_s.empty?
+  nic7_entry[:ifcfgmaster]         = params['nic7_ifcfgmaster'].to_s if !params['nic7_ifcfgmaster'].to_s.empty?
+  if params['nic7_ifcfgslave'].to_s.empty? then nic7_entry[:ifcfgslave] = "FALSE" else nic7_entry[:ifcfgslave] = "TRUE" end
+  nic7_entry[:ifcfgbondingopts]    = params['nic7_ifcfgbondingopts'].to_s if !params['nic7_ifcfgbondingopts'].to_s.empty?
+  nic7_entry[:ifcfgethtoolopts]    = params['nic7_ifcfgethtoolopts'].to_s if !params['nic7_ifcfgethtoolopts'].to_s.empty?
+  if params['nic7_ifcfguserctl'].to_s.empty? then nic7_entry[:ifcfguserctl] = "FALSE" else nic7_entry[:ifcfguserctl] = "TRUE" end
+  if params['nic7_ifcfgipv6init'].to_s.empty? then nic7_entry[:ifcfgipv6init] = "FALSE" else nic7_entry[:ifcfgipv6init] = "TRUE" end
+  nic7_entry[:description]         = params['nic7_description'].to_s if !params['nic7_description'].to_s.empty?
+
+  # NIC8
+  nic8_entry[:deviceIndex]         = "8"
+  nic8_entry[:objectclass]         = "networkDevice"
+  nic8_entry[:cn]                  = params['nic8_cn'].to_s if !params['nic8_cn'].to_s.empty?
+  if params['nic8_ifcfgipaddress'].to_s.empty? and not ["--"].include?(params['nic8_cn'].to_s) then
+    post_fields_valid=nil
+    puts "<font size='+1' color='red'>Error, NIC8 IP Address field cannot be blank</font><br>"
+  else 
+    nic8_entry[:ifcfgipaddress]    = params['nic8_ifcfgipaddress'].to_s end
+  if params['nic8_ifcfgnetmask'].to_s.empty? and not ["--"].include?(params['nic8_cn'].to_s) then
+    post_fields_valid=nil
+    puts "<font size='+1' color='red'>Error, NIC8 Netmask field cannot be blank</font><br>"
+  else 
+    nic8_entry[:ifcfgnetmask] = params['nic8_ifcfgnetmask'].to_s end
+  if !params['nic8_ifcfggateway'].to_s.empty? and not ["--"].include?(params['nic8_cn'].to_s)then
+    nic8_entry[:ifcfggateway]      = params['nic8_ifcfggateway'].to_s end
+  nic8_entry[:ifcfghwaddr]         = params['nic8_ifcfghwaddr'].to_s if !params['nic8_ifcfghwaddr'].to_s.empty?
+  if params['nic8_ifcfgtype'].to_s.empty? and not ["--"].include?(params['nic8_cn'].to_s) then
+    post_fields_valid=nil
+    puts "<font size='+1' color='red'>Error, NIC8 IF Type field cannot be blank</font><br>"
+  else 
+    nic8_entry[:ifcfgtype]         = params['nic8_ifcfgtype'].to_s end
+  if params['nic8_ifcfgonboot'].to_s.empty? then nic8_entry[:ifcfgonboot] = "FALSE" else nic8_entry[:ifcfgonboot] = "TRUE" end
+  nic8_entry[:ifcfgbootproto]      = params['nic8_ifcfgbootproto'].to_s if !params['nic8_ifcfgbootproto'].to_s.empty?
+  if params['nic8_pxeBoot'].to_s.empty? then nic8_entry[:pxeBoot] = "FALSE" else nic8_entry[:pxeBoot] = "TRUE" end
+  if params['nic8_ifcfgvlan'].to_s.empty? then nic8_entry[:ifcfgvlan] = "FALSE" else nic8_entry[:ifcfgvlan] = "TRUE" end
+  nic8_entry[:ifcfgbridge]         = params['nic8_ifcfgbridge'].to_s if !params['nic8_ifcfgbridge'].to_s.empty?
+  nic8_entry[:ifcfgmaster]         = params['nic8_ifcfgmaster'].to_s if !params['nic8_ifcfgmaster'].to_s.empty?
+  if params['nic8_ifcfgslave'].to_s.empty? then nic8_entry[:ifcfgslave] = "FALSE" else nic8_entry[:ifcfgslave] = "TRUE" end
+  nic8_entry[:ifcfgbondingopts]    = params['nic8_ifcfgbondingopts'].to_s if !params['nic8_ifcfgbondingopts'].to_s.empty?
+  nic8_entry[:ifcfgethtoolopts]    = params['nic8_ifcfgethtoolopts'].to_s if !params['nic8_ifcfgethtoolopts'].to_s.empty?
+  if params['nic8_ifcfguserctl'].to_s.empty? then nic8_entry[:ifcfguserctl] = "FALSE" else nic8_entry[:ifcfguserctl] = "TRUE" end
+  if params['nic8_ifcfgipv6init'].to_s.empty? then nic8_entry[:ifcfgipv6init] = "FALSE" else nic8_entry[:ifcfgipv6init] = "TRUE" end
+  nic8_entry[:description]         = params['nic8_description'].to_s if !params['nic8_description'].to_s.empty?
+
+  # NIC9
+  nic9_entry[:deviceIndex]         = "9"
+  nic9_entry[:objectclass]         = "networkDevice"
+  nic9_entry[:cn]                  = params['nic9_cn'].to_s if !params['nic9_cn'].to_s.empty?
+  if params['nic9_ifcfgipaddress'].to_s.empty? and not ["--"].include?(params['nic9_cn'].to_s) then
+    post_fields_valid=nil
+    puts "<font size='+1' color='red'>Error, NIC9 IP Address field cannot be blank</font><br>"
+  else 
+    nic9_entry[:ifcfgipaddress]    = params['nic9_ifcfgipaddress'].to_s end
+  if params['nic9_ifcfgnetmask'].to_s.empty? and not ["--"].include?(params['nic9_cn'].to_s) then
+    post_fields_valid=nil
+    puts "<font size='+1' color='red'>Error, NIC9 Netmask field cannot be blank</font><br>"
+  else 
+    nic9_entry[:ifcfgnetmask] = params['nic9_ifcfgnetmask'].to_s end
+  if !params['nic9_ifcfggateway'].to_s.empty? and not ["--"].include?(params['nic9_cn'].to_s)then
+    nic9_entry[:ifcfggateway]      = params['nic9_ifcfggateway'].to_s end
+  nic9_entry[:ifcfghwaddr]         = params['nic9_ifcfghwaddr'].to_s if !params['nic9_ifcfghwaddr'].to_s.empty?
+  if params['nic9_ifcfgtype'].to_s.empty? and not ["--"].include?(params['nic9_cn'].to_s) then
+    post_fields_valid=nil
+    puts "<font size='+1' color='red'>Error, NIC9 IF Type field cannot be blank</font><br>"
+  else 
+    nic9_entry[:ifcfgtype]         = params['nic9_ifcfgtype'].to_s end
+  if params['nic9_ifcfgonboot'].to_s.empty? then nic9_entry[:ifcfgonboot] = "FALSE" else nic9_entry[:ifcfgonboot] = "TRUE" end
+  nic9_entry[:ifcfgbootproto]      = params['nic9_ifcfgbootproto'].to_s if !params['nic9_ifcfgbootproto'].to_s.empty?
+  if params['nic9_pxeBoot'].to_s.empty? then nic9_entry[:pxeBoot] = "FALSE" else nic9_entry[:pxeBoot] = "TRUE" end
+  if params['nic9_ifcfgvlan'].to_s.empty? then nic9_entry[:ifcfgvlan] = "FALSE" else nic9_entry[:ifcfgvlan] = "TRUE" end
+  nic9_entry[:ifcfgbridge]         = params['nic9_ifcfgbridge'].to_s if !params['nic9_ifcfgbridge'].to_s.empty?
+  nic9_entry[:ifcfgmaster]         = params['nic9_ifcfgmaster'].to_s if !params['nic9_ifcfgmaster'].to_s.empty?
+  if params['nic9_ifcfgslave'].to_s.empty? then nic9_entry[:ifcfgslave] = "FALSE" else nic9_entry[:ifcfgslave] = "TRUE" end
+  nic9_entry[:ifcfgbondingopts]    = params['nic9_ifcfgbondingopts'].to_s if !params['nic9_ifcfgbondingopts'].to_s.empty?
+  nic9_entry[:ifcfgethtoolopts]    = params['nic9_ifcfgethtoolopts'].to_s if !params['nic9_ifcfgethtoolopts'].to_s.empty?
+  if params['nic9_ifcfguserctl'].to_s.empty? then nic9_entry[:ifcfguserctl] = "FALSE" else nic9_entry[:ifcfguserctl] = "TRUE" end
+  if params['nic9_ifcfgipv6init'].to_s.empty? then nic9_entry[:ifcfgipv6init] = "FALSE" else nic9_entry[:ifcfgipv6init] = "TRUE" end
+  nic9_entry[:description]         = params['nic9_description'].to_s if !params['nic9_description'].to_s.empty?
+
+  # NIC10
+  nic10_entry[:deviceIndex]         = "10"
+  nic10_entry[:objectclass]         = "networkDevice"
+  nic10_entry[:cn]                  = params['nic10_cn'].to_s if !params['nic10_cn'].to_s.empty?
+  if params['nic10_ifcfgipaddress'].to_s.empty? and not ["--"].include?(params['nic10_cn'].to_s) then
+    post_fields_valid=nil
+    puts "<font size='+1' color='red'>Error, NIC10 IP Address field cannot be blank</font><br>"
+  else 
+    nic10_entry[:ifcfgipaddress]    = params['nic10_ifcfgipaddress'].to_s end
+  if params['nic10_ifcfgnetmask'].to_s.empty? and not ["--"].include?(params['nic10_cn'].to_s) then
+    post_fields_valid=nil
+    puts "<font size='+1' color='red'>Error, NIC10 Netmask field cannot be blank</font><br>"
+  else 
+    nic10_entry[:ifcfgnetmask] = params['nic10_ifcfgnetmask'].to_s end
+  if !params['nic10_ifcfggateway'].to_s.empty? and not ["--"].include?(params['nic10_cn'].to_s)then
+    nic10_entry[:ifcfggateway]      = params['nic10_ifcfggateway'].to_s end
+  nic10_entry[:ifcfghwaddr]         = params['nic10_ifcfghwaddr'].to_s if !params['nic10_ifcfghwaddr'].to_s.empty?
+  if params['nic10_ifcfgtype'].to_s.empty? and not ["--"].include?(params['nic10_cn'].to_s) then
+    post_fields_valid=nil
+    puts "<font size='+1' color='red'>Error, NIC10 IF Type field cannot be blank</font><br>"
+  else 
+    nic10_entry[:ifcfgtype]         = params['nic10_ifcfgtype'].to_s end
+  if params['nic10_ifcfgonboot'].to_s.empty? then nic10_entry[:ifcfgonboot] = "FALSE" else nic10_entry[:ifcfgonboot] = "TRUE" end
+  nic10_entry[:ifcfgbootproto]      = params['nic10_ifcfgbootproto'].to_s if !params['nic10_ifcfgbootproto'].to_s.empty?
+  if params['nic10_pxeBoot'].to_s.empty? then nic10_entry[:pxeBoot] = "FALSE" else nic10_entry[:pxeBoot] = "TRUE" end
+  if params['nic10_ifcfgvlan'].to_s.empty? then nic10_entry[:ifcfgvlan] = "FALSE" else nic10_entry[:ifcfgvlan] = "TRUE" end
+  nic10_entry[:ifcfgbridge]         = params['nic10_ifcfgbridge'].to_s if !params['nic10_ifcfgbridge'].to_s.empty?
+  nic10_entry[:ifcfgmaster]         = params['nic10_ifcfgmaster'].to_s if !params['nic10_ifcfgmaster'].to_s.empty?
+  if params['nic10_ifcfgslave'].to_s.empty? then nic10_entry[:ifcfgslave] = "FALSE" else nic10_entry[:ifcfgslave] = "TRUE" end
+  nic10_entry[:ifcfgbondingopts]    = params['nic10_ifcfgbondingopts'].to_s if !params['nic10_ifcfgbondingopts'].to_s.empty?
+  nic10_entry[:ifcfgethtoolopts]    = params['nic10_ifcfgethtoolopts'].to_s if !params['nic10_ifcfgethtoolopts'].to_s.empty?
+  if params['nic10_ifcfguserctl'].to_s.empty? then nic10_entry[:ifcfguserctl] = "FALSE" else nic10_entry[:ifcfguserctl] = "TRUE" end
+  if params['nic10_ifcfgipv6init'].to_s.empty? then nic10_entry[:ifcfgipv6init] = "FALSE" else nic10_entry[:ifcfgipv6init] = "TRUE" end
+  nic10_entry[:description]         = params['nic10_description'].to_s if !params['nic10_description'].to_s.empty?
+
+  # NIC11
+  nic11_entry[:deviceIndex]         = "11"
+  nic11_entry[:objectclass]         = "networkDevice"
+  nic11_entry[:cn]                  = params['nic11_cn'].to_s if !params['nic11_cn'].to_s.empty?
+  if params['nic11_ifcfgipaddress'].to_s.empty? and not ["--"].include?(params['nic11_cn'].to_s) then
+    post_fields_valid=nil
+    puts "<font size='+1' color='red'>Error, NIC11 IP Address field cannot be blank</font><br>"
+  else 
+    nic11_entry[:ifcfgipaddress]    = params['nic11_ifcfgipaddress'].to_s end
+  if params['nic11_ifcfgnetmask'].to_s.empty? and not ["--"].include?(params['nic11_cn'].to_s) then
+    post_fields_valid=nil
+    puts "<font size='+1' color='red'>Error, NIC11 Netmask field cannot be blank</font><br>"
+  else 
+    nic11_entry[:ifcfgnetmask] = params['nic11_ifcfgnetmask'].to_s end
+  if !params['nic11_ifcfggateway'].to_s.empty? and not ["--"].include?(params['nic11_cn'].to_s)then
+    nic11_entry[:ifcfggateway]      = params['nic11_ifcfggateway'].to_s end
+  nic11_entry[:ifcfghwaddr]         = params['nic11_ifcfghwaddr'].to_s if !params['nic11_ifcfghwaddr'].to_s.empty?
+  if params['nic11_ifcfgtype'].to_s.empty? and not ["--"].include?(params['nic11_cn'].to_s) then
+    post_fields_valid=nil
+    puts "<font size='+1' color='red'>Error, NIC11 IF Type field cannot be blank</font><br>"
+  else 
+    nic11_entry[:ifcfgtype]         = params['nic11_ifcfgtype'].to_s end
+  if params['nic11_ifcfgonboot'].to_s.empty? then nic11_entry[:ifcfgonboot] = "FALSE" else nic11_entry[:ifcfgonboot] = "TRUE" end
+  nic11_entry[:ifcfgbootproto]      = params['nic11_ifcfgbootproto'].to_s if !params['nic11_ifcfgbootproto'].to_s.empty?
+  if params['nic11_pxeBoot'].to_s.empty? then nic11_entry[:pxeBoot] = "FALSE" else nic11_entry[:pxeBoot] = "TRUE" end
+  if params['nic11_ifcfgvlan'].to_s.empty? then nic11_entry[:ifcfgvlan] = "FALSE" else nic11_entry[:ifcfgvlan] = "TRUE" end
+  nic11_entry[:ifcfgbridge]         = params['nic11_ifcfgbridge'].to_s if !params['nic11_ifcfgbridge'].to_s.empty?
+  nic11_entry[:ifcfgmaster]         = params['nic11_ifcfgmaster'].to_s if !params['nic11_ifcfgmaster'].to_s.empty?
+  if params['nic11_ifcfgslave'].to_s.empty? then nic11_entry[:ifcfgslave] = "FALSE" else nic11_entry[:ifcfgslave] = "TRUE" end
+  nic11_entry[:ifcfgbondingopts]    = params['nic11_ifcfgbondingopts'].to_s if !params['nic11_ifcfgbondingopts'].to_s.empty?
+  nic11_entry[:ifcfgethtoolopts]    = params['nic11_ifcfgethtoolopts'].to_s if !params['nic11_ifcfgethtoolopts'].to_s.empty?
+  if params['nic11_ifcfguserctl'].to_s.empty? then nic11_entry[:ifcfguserctl] = "FALSE" else nic11_entry[:ifcfguserctl] = "TRUE" end
+  if params['nic11_ifcfgipv6init'].to_s.empty? then nic11_entry[:ifcfgipv6init] = "FALSE" else nic11_entry[:ifcfgipv6init] = "TRUE" end
+  nic11_entry[:description]         = params['nic11_description'].to_s if !params['nic11_description'].to_s.empty?
+
+  # NIC12
+  nic12_entry[:deviceIndex]         = "12"
+  nic12_entry[:objectclass]         = "networkDevice"
+  nic12_entry[:cn]                  = params['nic12_cn'].to_s if !params['nic12_cn'].to_s.empty?
+  if params['nic12_ifcfgipaddress'].to_s.empty? and not ["--"].include?(params['nic12_cn'].to_s) then
+    post_fields_valid=nil
+    puts "<font size='+1' color='red'>Error, NIC12 IP Address field cannot be blank</font><br>"
+  else 
+    nic12_entry[:ifcfgipaddress]    = params['nic12_ifcfgipaddress'].to_s end
+  if params['nic12_ifcfgnetmask'].to_s.empty? and not ["--"].include?(params['nic12_cn'].to_s) then
+    post_fields_valid=nil
+    puts "<font size='+1' color='red'>Error, NIC12 Netmask field cannot be blank</font><br>"
+  else 
+    nic12_entry[:ifcfgnetmask] = params['nic12_ifcfgnetmask'].to_s end
+  if !params['nic12_ifcfggateway'].to_s.empty? and not ["--"].include?(params['nic12_cn'].to_s)then
+    nic12_entry[:ifcfggateway]      = params['nic12_ifcfggateway'].to_s end
+  nic12_entry[:ifcfghwaddr]         = params['nic12_ifcfghwaddr'].to_s if !params['nic12_ifcfghwaddr'].to_s.empty?
+  if params['nic12_ifcfgtype'].to_s.empty? and not ["--"].include?(params['nic12_cn'].to_s) then
+    post_fields_valid=nil
+    puts "<font size='+1' color='red'>Error, NIC12 IF Type field cannot be blank</font><br>"
+  else 
+    nic12_entry[:ifcfgtype]         = params['nic12_ifcfgtype'].to_s end
+  if params['nic12_ifcfgonboot'].to_s.empty? then nic12_entry[:ifcfgonboot] = "FALSE" else nic12_entry[:ifcfgonboot] = "TRUE" end
+  nic12_entry[:ifcfgbootproto]      = params['nic12_ifcfgbootproto'].to_s if !params['nic12_ifcfgbootproto'].to_s.empty?
+  if params['nic12_pxeBoot'].to_s.empty? then nic12_entry[:pxeBoot] = "FALSE" else nic12_entry[:pxeBoot] = "TRUE" end
+  if params['nic12_ifcfgvlan'].to_s.empty? then nic12_entry[:ifcfgvlan] = "FALSE" else nic12_entry[:ifcfgvlan] = "TRUE" end
+  nic12_entry[:ifcfgbridge]         = params['nic12_ifcfgbridge'].to_s if !params['nic12_ifcfgbridge'].to_s.empty?
+  nic12_entry[:ifcfgmaster]         = params['nic12_ifcfgmaster'].to_s if !params['nic12_ifcfgmaster'].to_s.empty?
+  if params['nic12_ifcfgslave'].to_s.empty? then nic12_entry[:ifcfgslave] = "FALSE" else nic12_entry[:ifcfgslave] = "TRUE" end
+  nic12_entry[:ifcfgbondingopts]    = params['nic12_ifcfgbondingopts'].to_s if !params['nic12_ifcfgbondingopts'].to_s.empty?
+  nic12_entry[:ifcfgethtoolopts]    = params['nic12_ifcfgethtoolopts'].to_s if !params['nic12_ifcfgethtoolopts'].to_s.empty?
+  if params['nic12_ifcfguserctl'].to_s.empty? then nic12_entry[:ifcfguserctl] = "FALSE" else nic12_entry[:ifcfguserctl] = "TRUE" end
+  if params['nic12_ifcfgipv6init'].to_s.empty? then nic12_entry[:ifcfgipv6init] = "FALSE" else nic12_entry[:ifcfgipv6init] = "TRUE" end
+  nic12_entry[:description]         = params['nic12_description'].to_s if !params['nic12_description'].to_s.empty?
+
+
+  # Where there data entry errors picked up?
+  if !post_fields_valid
+    puts "<br>"
+    puts "<font size='+1' color=red>Cannot save server ("+ fqdn +") in CMDB, please go back and correct form data.</font><br><br>"
+    puts "<form><input type='button' value='Back to form' onclick='history.go(-1);return true;'></form>"
+    exit 1
+  end
+
+  # Persist to the database
+  result = persistServerEntry(dn, managedserver, disk1_entry, disk2_entry, nic1_entry, nic2_entry, nic3_entry, nic4_entry, nic5_entry, nic6_entry, nic7_entry, nic8_entry, nic9_entry, nic10_entry, nic11_entry, nic12_entry)
+
+  if result.to_s == "true" then
+
+    if cgi['posted'] == "create" then puts "<br><font size='+1' color='red'>Your new system has been saved:</font>" end
+    if cgi['posted'] == "edit" then puts "<br><font size='+1' color='red'>Your system has been updated:</font>" end
+  else
+    puts "<br><font size='+1' color='red'>Something went wrong, entry not fully persisted to the CMDB</font>"
+  end
+
+end
+
+
+
+#
+# Main Part 2: Read system details and display
+#
+puts "<h1>System Details: " + fqdn + "</h1>"
+
+managedserver = read_server_by_fqdn(fqdn)
+
+if managedserver.to_s.empty? then
+  puts "<br>"
+  puts "<font size='+1' color=red>Something went wrong, server ("+ fqdn +") not found in CMDB</font><br><br>"
+  puts "<form><input type='button' value='Go Back' onclick='history.go(-1);return true;'></form>"
+  exit 1
+end
+
+dn = managedserver['dn'].to_s
+
+display_server(managedserver)
+
+
+puts "<br>"
+puts "<font size='+1'><b>Disks:</b></font><br>"
+
+numdisks=0
+disk_cn="sda"
+disks=TRUE
+puts "<table>"
+while disks do
+  disk_entry = read_disk_by_dn(dn, (numdisks + 1).to_s)
+
+  if (disk_entry.to_s).empty?  then
+    # No more disks
+    disks=FALSE
+  else
+    numdisks = numdisks+1
+    if numdisks > 1 then puts "<br>" end
+    display_disk(disk_entry)
+  end
+end
+puts "</table>"
+
+puts "<br>"
+puts "<font size='+1'><b>NICs:</b></font><br>"
+
+numnics=0
+nics=TRUE
+puts "<table>"
+while nics do
+  numnics = numnics+1
+  nic_entry = read_nic_by_dn(dn, numnics.to_s)
+
+  if (nic_entry.to_s).empty? then
+    # No more disks
+    nics=FALSE unless numnics < total_num_nics
+  else
+    if numnics > 1 then puts "<br>" end
+    display_nic(nic_entry)
+  end
+end
+puts "</table>"
+
+
+puts "<br>"
+puts "<table><tr>"
+puts "<td><font size=+1><a href='/cmdb/edit?fqdn="+fqdn+"'>Edit</a></td><td>|&nbsp;</font></td>"
+puts "<td><font size=+1><a href='/cmdb/delete?fqdn="+fqdn+"'>Delete</a></td><td>|&nbsp;</font></td>"
+puts "<td><font size=+1><a href='/cmdb/list'>Home</a></font></td></tr></table>"
+
+output_page_footer
+
+exit 0
+

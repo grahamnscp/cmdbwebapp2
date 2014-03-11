@@ -1,0 +1,481 @@
+dn: cn={12}soe_cmdb
+objectClass: olcSchemaConfig
+cn: {12}soe_cmdb
+#
+olcAttributeTypes: ( 2.5.6.11.1.1
+  NAME 'manufacturer'
+  DESC 'Manufacturer: Hardware manufacturer or Virtualisation Vendor'
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  EQUALITY caseIgnoreMatch
+  SUBSTR caseIgnoreSubstringsMatch )
+#
+olcAttributeTypes: ( 2.5.6.11.1.2
+  NAME 'model'
+  DESC 'Server Model: Hardware server model or Virtualisation Platform'
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  EQUALITY caseIgnoreMatch
+  SUBSTR caseIgnoreSubstringsMatch )
+#
+olcAttributeTypes: ( 2.5.6.11.1.3
+  NAME 'hostName'
+  DESC 'Host Name: FQDN'
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch )
+#
+olcAttributeTypes: ( 2.5.6.11.1.4
+  NAME 'location'
+  DESC 'Server Location'
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  EQUALITY caseIgnoreMatch
+  SUBSTR caseIgnoreSubstringsMatch )
+#
+olcAttributeTypes: ( 2.5.6.11.1.5
+  NAME 'serverRole'
+  DESC 'Server Role: Name of the serverRole object(s) that apply to this server'
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch )
+#
+olcAttributeTypes: ( 2.5.6.11.1.6
+  NAME 'serverOwner'
+  DESC 'Server Owner: (e.g department or person)'
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  EQUALITY caseIgnoreMatch
+  SUBSTR caseIgnoreSubstringsMatch )
+#
+olcAttributeTypes: ( 2.5.6.11.1.7
+  NAME 'environment'
+  DESC 'Environment: (e.g test, dev, production)'
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch )
+#
+olcAttributeTypes: ( 2.5.6.11.1.8
+  NAME 'operatingSystem'
+  DESC 'Operating System: (e.g Linux)'
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  EQUALITY caseIgnoreMatch
+  SUBSTR caseIgnoreSubstringsMatch )
+#
+olcAttributeTypes: ( 2.5.6.11.1.9
+  NAME 'osVersion'
+  DESC 'Operating System Version: (e.g RHEL 6 x86_64)'
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  EQUALITY caseIgnoreMatch
+  SUBSTR caseIgnoreSubstringsMatch )
+#
+olcAttributeTypes: ( 2.5.6.11.1.10
+  NAME 'virtual'
+  DESC 'Virtualised: (e.g TRUE, FALSE)'
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+  EQUALITY booleanMatch )
+#
+olcAttributeTypes: ( 2.5.6.11.1.11
+  NAME 'vCluster'
+  DESC 'VM Cluster: (VMware/RHEV) '
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch )
+#
+olcAttributeTypes: ( 2.5.6.11.1.12
+  NAME 'vDataCentre'
+  DESC 'VM Data Centre: (VMware/RHEV)  '
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch )
+#
+olcAttributeTypes: ( 2.5.6.11.1.13
+  NAME 'vCores'
+  DESC 'VM CPU Cores: Number'
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+  EQUALITY integerMatch )
+#
+olcAttributeTypes: ( 2.5.6.11.1.14
+  NAME 'vSockets'
+  DESC 'VM CPU Sockets: Number'
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+  EQUALITY integerMatch )
+#
+olcAttributeTypes: ( 2.5.6.11.1.15
+  NAME 'vMemory'
+  DESC 'VM Memory: GBytes'
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+  EQUALITY integerMatch )
+#
+olcAttributeTypes: ( 2.5.6.11.1.16
+  NAME 'vTemplate'
+  DESC 'VM Template: (VMware/RHEV)'
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch )
+#
+olcAttributeTypes: ( 2.5.6.11.1.17
+  NAME 'vHost'
+  DESC 'VM Host: (VMware/RHEV)'
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch )
+#
+olcAttributeTypes: ( 2.5.6.11.1.18
+  NAME 'vBridge'
+  DESC 'VM Bridge: Bridge that this NIC is connected to externally'
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch )
+#
+olcAttributeTypes: ( 2.5.6.11.1.19
+  NAME 'vStorageLocation'
+  DESC 'VM Datastore: VMware/RHEV Datastore or Storage Domain'
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch )
+#
+olcAttributeTypes: ( 2.5.6.11.1.20
+  NAME 'vDeviceInterface'
+  DESC 'VM Device Interface: (e.g. virtio, IDE, SCSI)'
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch )
+#
+olcAttributeTypes: ( 2.5.6.11.1.21
+  NAME 'vDeviceProvisioning'
+  DESC 'VM Device Provisioning: (e.g. thin, preallocated)'
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch )
+#
+olcAttributeTypes: ( 2.5.6.11.1.22
+  NAME 'nameServer'
+  SUP ipHostNumber
+  DESC 'DNS Server: IP address' )
+#
+olcAttributeTypes: ( 2.5.6.11.1.23
+  NAME 'timeServer'
+  SUP ipHostNumber
+  DESC 'NTP Server: IP address' )
+#
+olcAttributeTypes: ( 2.5.6.11.1.24
+  NAME 'cobblerProfile'
+  DESC 'Cobbler Profile: Kickstart profile to build from'
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch )
+#
+olcAttributeTypes: ( 2.5.6.11.1.25
+  NAME 'tripwireManager'
+  DESC 'Tripwire Server: (e.g. to register this server with)'
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch )
+#
+olcAttributeTypes: ( 2.5.6.11.1.26
+  NAME 'auditProfile'
+  DESC 'Audit Profile: Audit profile for server application use'
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch )
+#
+olcAttributeTypes: ( 2.5.6.11.1.27
+  NAME 'rhevManager'
+  DESC 'RHEV-M Server: If this server is a RHEV hypervisor'
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch )
+#
+olcAttributeTypes: ( 2.5.6.11.1.28
+  NAME 'snmpManager'
+  DESC 'SNMP NMS: Management Server to register this server with'
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch )
+#
+olcAttributeTypes: ( 2.5.6.11.1.29
+  NAME 'idmManager'
+  DESC 'idM Manager: Principal IdM server'
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch )
+#
+olcAttributeTypes: ( 2.5.6.11.1.30
+  NAME 'rhnBaseChannel'
+  DESC 'RHN Base Channel'
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch )
+#
+olcAttributeTypes: ( 2.5.6.11.1.31
+  NAME 'rhnChildChannel'
+  DESC 'RHN Child Channel'
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch )
+#
+olcAttributeTypes: ( 2.5.6.11.1.32
+  NAME 'rhnActivationKey'
+  DESC 'RHN Activation Key'
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch )
+#
+olcAttributeTypes: ( 2.5.6.11.1.33
+  NAME 'softwareRepo'
+  DESC 'Yum Repository: (e.g. for non-RHN packages)'
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch )
+#
+olcAttributeTypes: ( 2.5.6.11.1.34
+  NAME 'deviceIndex'
+  DESC 'Device Index: The order of the device (disk/NIC) if there are several'
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+  EQUALITY integerMatch )
+#
+olcAttributeTypes: ( 2.5.6.11.1.35
+  NAME 'size'
+  DESC 'Size (GB): Generic size attribute'
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+  EQUALITY integerMatch )
+#
+olcAttributeTypes: ( 2.5.6.11.1.36
+  NAME 'ifcfgType'
+  DESC 'Interface Type: (Options: Ethernet, Bridge)'
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch )
+#
+olcAttributeTypes: ( 2.5.6.11.1.37
+  NAME 'ifcfgBootproto'
+  DESC 'Interface Boot Protocol: (Options: DHCP, None)'
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch )
+#
+olcAttributeTypes: ( 2.5.6.11.1.38
+  NAME 'ifcfgOnboot'
+  DESC 'Start Interface on Boot: (Options: TRUE, FALSE)'
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+  EQUALITY booleanMatch )
+#
+olcAttributeTypes: ( 2.5.6.11.1.39
+  NAME 'ifcfgVlan'
+  DESC 'Interface is a VLAN: (Options: TRUE, FALSE)'
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+  EQUALITY booleanMatch )
+#
+olcAttributeTypes: ( 2.5.6.11.1.40
+  NAME 'ifcfgIPAddress'
+  SUP ipHostNumber
+  DESC 'Interface IP Address' )
+#
+olcAttributeTypes: ( 2.5.6.11.1.41
+  NAME 'ifcfgNetmask'
+  SUP ipNetmaskNumber
+  DESC 'Interface Netmask' )
+#
+olcAttributeTypes: ( 2.5.6.11.1.42
+  NAME 'ifcfgGateway'
+  SUP ipHostNumber
+  DESC 'Interface Gateway' )
+#
+olcAttributeTypes: ( 2.5.6.11.1.43
+  NAME 'ifcfgHWAddr'
+  SUP macAddress
+  DESC 'Interface MAC Address' )
+#
+olcAttributeTypes: ( 2.5.6.11.1.44
+  NAME 'ifcfgNMControlled'
+  DESC 'Interface Controlled by NetworkManager: (Options: TRUE, FALSE)'
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+  EQUALITY booleanMatch )
+#
+olcAttributeTypes: ( 2.5.6.11.1.45
+  NAME 'ifcfgMTU'
+  DESC 'Interface MTU'
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+  EQUALITY integerMatch )
+#
+olcAttributeTypes: ( 2.5.6.11.1.46
+  NAME 'ifcfgBridge'
+  DESC 'Interface Bridge: Linux bridge name that this NIC is connected to internally'
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch )
+#
+olcAttributeTypes: ( 2.5.6.11.1.47
+  NAME 'ifcfgSlave'
+  DESC 'Interface is a Bonded Slave: (Options: TRUE, FALSE)'
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+  EQUALITY booleanMatch )
+#
+olcAttributeTypes: ( 2.5.6.11.1.48
+  NAME 'ifcfgMaster'
+  DESC 'Interface Bond Name: Bond master that this NIC is a member of'
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch )
+#
+olcAttributeTypes: ( 2.5.6.11.1.49
+  NAME 'ifcfgEthtoolOpts'
+  DESC 'Ethtool Options'
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch )
+#
+olcAttributeTypes: ( 2.5.6.11.1.50
+  NAME 'ifcfgBondingOpts'
+  DESC 'Bonding Options'
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch )
+#
+olcAttributeTypes: ( 2.5.6.11.1.51
+  NAME 'ifcfgUserCtl'
+  DESC 'Interface User Control: (Options: TRUE, FALSE)'
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+  EQUALITY booleanMatch )
+#
+olcAttributeTypes: ( 2.5.6.11.1.52
+  NAME 'ifcfgIPV6Init'
+  DESC 'Interface IPv6 Configuration Enabled (Options: TRUE, FALSE)'
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+  EQUALITY booleanMatch )
+#
+olcAttributeTypes: ( 2.5.6.11.1.53
+  NAME 'pxeBoot'
+  DESC 'PXE Boot NIC: (Options: TRUE, FALSE)'
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+  EQUALITY booleanMatch )
+#
+olcAttributeTypes: ( 2.5.6.11.1.54
+  NAME 'puppetClass'
+  DESC 'Puppet Class to run'
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch )
+#
+olcAttributeTypes: ( 2.5.6.11.1.55
+  NAME 'softwarePackage'
+  DESC 'Individual RPM to install'
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch )
+#
+olcAttributeTypes: ( 2.5.6.11.1.56
+  NAME 'puppetLastRunDate'
+  DESC 'Puppet Last Run Date'
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch )
+#
+olcAttributeTypes: ( 2.5.6.11.1.57
+  NAME 'puppetStatus'
+  DESC 'Puppet Last Run Status'
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch )
+#
+olcAttributeTypes: ( 2.5.6.11.1.58
+  NAME 'uptime'
+  DESC 'System Uptime'
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch )
+#
+olcAttributeTypes: ( 2.5.6.11.1.59
+  NAME 'version'
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch )
+#
+olcAttributeTypes: ( 2.5.6.11.1.60
+  NAME 'shortVersion'
+  SUP version
+  DESC 'Short Version' )
+#
+olcAttributeTypes: ( 2.5.6.11.1.61
+  NAME 'fullVersion'
+  SUP version
+  DESC 'Full Version' )
+#
+olcAttributeTypes: ( 2.5.6.11.1.62
+  NAME 'releaseName'
+  DESC 'Software Release Name'
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch )
+#
+olcAttributeTypes: ( 2.5.6.11.1.63
+  NAME 'releaseDate'
+  DESC 'Software Release Date'
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch )
+#
+olcAttributeTypes: ( 2.5.6.11.1.64
+  NAME 'releaseLabel'
+  DESC 'Software Release Label'
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch )
+#
+olcAttributeTypes: ( 2.5.6.11.1.65
+  NAME 'deviceAlias'
+  DESC 'Alias of device'
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch )
+#
+olcAttributeTypes: ( 2.5.6.11.1.66
+  NAME 'memory'
+  DESC 'Physical Memory: GBytes'
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+  EQUALITY integerMatch )
+#
+olcAttributeTypes: ( 2.5.6.11.1.67
+  NAME 'sockets'
+  DESC 'Number of Physical Sockets'
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+  EQUALITY integerMatch )
+#
+olcAttributeTypes: ( 2.5.6.11.1.68
+  NAME 'cores'
+  DESC 'Number of Physical Cores'
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+  EQUALITY integerMatch )
+#
+olcAttributeTypes: ( 2.5.6.11.1.69
+  NAME 'deviceInterface'
+  DESC 'Physical Device Interface: (IDE, SCSI)'
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch )
+#
+olcAttributeTypes: ( 2.5.6.11.1.70
+  NAME 'LOM'
+  SUP ipHostNumber
+  DESC 'Lights Out Management IP Address' )
+#
+olcObjectClasses: ( 2.5.6.11.2.1
+  NAME 'managedServer'
+  STRUCTURAL
+  MUST ( hostName $ serverRole $ operatingSystem $ osVersion $ virtual $ cobblerProfile $ rhnBaseChannel $ rhnActivationKey $ cn )
+  MAY ( manufacturer $ model $ location $ serverOwner $ memory $ sockets $ cores $ vCluster $ vDataCentre $ vCores $ vSockets $ vMemory $ vTemplate $ vHost $ nameServer $ timeServer $ tripwireManager $ auditProfile $ snmpManager $ rhevManager $ idmManager $ rhnChildChannel $ environment $ puppetClass $ softwarePackage $ puppetLastRunDate $ puppetStatus $ uptime $ description $ LOM ) )
+#
+olcObjectClasses: ( 2.5.6.11.2.2
+  NAME 'networkDevice'
+  STRUCTURAL
+  MUST ( deviceIndex $ ifcfgType $ ifcfgOnboot $ cn )
+  MAY ( vBridge $ ifcfgBootproto $ ifcfgVlan $ ifcfgIPAddress $ ifcfgNetmask $ ifcfgGateway $ ifcfgHWAddr $ ifcfgNMControlled $ ifcfgMTU $ ifcfgBridge $ ifcfgSlave $ ifcfgMaster $ ifcfgEthtoolOpts $ ifcfgBondingOpts $ ifcfgUserCtl $ ifcfgIPV6Init $ pxeBoot $ description ) )
+#
+olcObjectClasses: ( 2.5.6.11.2.3
+  NAME 'storageDevice'
+  STRUCTURAL
+  MUST ( deviceInterface $ deviceAlias $ deviceIndex $ size $ cn )
+  MAY ( vDeviceProvisioning $ description $ vDeviceInterface $ vStorageLocation ) )
+#
+olcObjectClasses: ( 2.5.6.11.2.4
+  NAME 'serverRole'
+  STRUCTURAL
+  MUST ( cn )
+  MAY ( puppetClass $ softwarePackage $ description ) )

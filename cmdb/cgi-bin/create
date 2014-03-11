@@ -1,0 +1,780 @@
+#!/usr/bin/ruby
+
+# Includes
+require 'helper.rb'
+require 'helper-satapi.rb'
+
+
+# 
+# Main
+#
+BEGIN { $VERBOSE = nil }
+
+output_page_header
+
+puts "<h1>System Create:</h1>"
+
+puts "<form Method='POST' action= '/cmdb/show'>"
+
+puts "  <p><input type='hidden' name='posted' value='create'>"
+
+puts "<table>"
+
+puts "<tr>"
+puts "<td align=right><b>* Hostname:</b></td><td><input type='text' size='40' name='hostname'></td>"
+puts      "<td align=right><b>Description:</b></td><td><input type='text' size='40' name='description' value=''><br></td>"
+puts "</tr>"
+
+puts "<tr>"
+puts "<td align=right><b>Location:</b></td><td><select name='location'>"
+File.open($lov_location).readlines.each do |fval|
+  puts "<option value='"+fval.strip+"'>"+fval.strip+"</option>" end
+puts "</select></td>"
+puts      "<td align=right><b>Owner:</b></td><td><input type='text' size='40' name='serverowner' value=''><br></td>"
+puts "</tr>"
+
+puts "<tr>"
+puts "<td align=right><b>Environment:</b></td><td><select name='environment'>"
+File.open($lov_environment).readlines.each do |fval|
+  puts "<option value='"+fval.strip+"'>"+fval.strip+"</option>" end
+puts "</select></td>"
+puts      "<td>&nbsp;</td><td></td>"
+puts      "<p><input type='hidden' name='uptime' value='unset'>"
+puts "</tr>"
+
+puts "<tr>"
+puts "<td align=right><b>* OS Type:</b></td><td><select name='operatingSystem'>"
+File.open($lov_operatingsystem).readlines.each do |fval|
+  puts "    <option value='"+fval.strip+"'>"+fval.strip+"</option>" end
+puts "  </select></td>"
+puts      "<td align=right><b>LOM IP:</b></td><td><input type='text' size='16' name='lom' value=''><br></td>"
+puts "</tr>"
+
+puts "<tr>"
+puts "<td align=right><b>OS Version:</b></td><td><select name='osVersion'>"
+File.open($lov_osversion).readlines.each do |fval|
+  puts "    <option value='"+fval.strip+"'>"+fval.strip+"</option>" end
+puts "</select></td>"
+puts      "<td align=right><b>Audit Profile:</b></td><td><input type='text' size='15' name='auditprofile'><br></td>"
+puts "</tr>"
+
+puts "<tr>"
+puts "<td align=right><b>Manufacturer:</b></td><td><input type='text' size='15' name='manufacturer'><br></td>"
+puts      "<td align=right><b>SNMP Mgr:</b></td><td><input type='text' size='15' name='snmpmanager'><br></td>"
+puts "</tr>"
+
+puts "<tr>"
+puts "<td align=right><b>Model:</b></td><td><input type='text' size='15' name='model'><br></td>"
+puts      "<td align=right><b>IDM Mgr:</b></td><td><input type='text' size='15' name='idmmanager'><br></td>"
+puts "</tr>"
+
+puts "<tr>"
+puts "<td align=right><b>Sockets:</b></td><td><input type='text' size='2' name='sockets'><br></td>"
+puts      "<td>&nbsp;</td><td>&nbsp;</td>"
+puts      "<p><input type='hidden' name='puppetstatus' value='unset'>"
+puts "</tr>"
+
+puts "<tr>"
+puts "<td align=right><b>Cores:</b></td><td><input type='text' size='2' name='cores'><br></td>"
+puts      "<td>&nbsp;</td><td>&nbsp;<br></td>"
+puts      "<p><input type='hidden' name='puppetlastrundate' value='unset'>"
+puts "</tr>"
+
+puts "<tr>"
+puts "<td align=right><b>Memory:</b></td><td><input type='text' size='15' name='memory' value='8192'><br></td>"
+puts      "<td align=right><b>* serverRoles:</b></td><td><select name='serverRole' size='10' multiple>"
+# Read Server Roles from CMDB
+serverroles = read_server_roles
+serverroles.each do |srole|
+  case srole.strip
+    when "baserole"
+      puts "    <option selected='selected'>"+srole.strip+"</option>"
+    else
+      puts "    <option>"+srole.strip+"</option>"
+  end
+end
+puts "</select></td>"
+puts "</tr>"
+
+puts "<tr>"
+puts "<td align=right><b>* cobblerProfile:</b></td><td><select name='cobblerProfile'>"
+# Read from Satellite API
+kickstarts = read_kickstarts
+kickstarts.sort.reverse.each do |ksprofile|
+      puts "    <option value='"+ksprofile.strip+"'>"+ksprofile.strip+"</option>"
+end
+puts "</select></td>"
+puts      "<td align=right><b>* rhnBaseChannel:</b></td><td><select name='rhnBaseChannel'>"
+# Read from Satellite API
+channels = read_base_channels
+channels.sort.reverse.each do |label|
+      puts "    <option value='"+label.strip+"'>"+label.strip+"</option>"
+end
+puts "</select></td>"
+puts "</tr>"
+
+puts "<tr>"
+puts "<td align=right><b>* rhnActivationKey:</b></td><td><select name='rhnActivationKey' size='6' multiple>"
+# Read from Satellite API
+akeys = read_activationkeys
+akeys.each do |akey|
+      puts "    <option>"+akey.strip+"</option>"
+end
+puts "</select></td>"
+puts      "<td align=right><b>rhnChildChannels:</b></td><td><select name='rhnChildChannel' size='6' multiple>"
+# Read from Satellite API
+channels = read_child_channels
+channels.each do |label|
+      puts "    <option>"+label.strip+"</option>"
+end
+puts "</select></td>"
+puts "</tr>"
+
+puts "<tr>"
+puts "<td align=right><b>Name Servers:</b></td><td><select name='nameServer' size='2' multiple>"
+File.open($lov_nameserver).readlines.each do |fval|
+  puts "    <option selected='selected'>"+fval.strip+"</option>" end
+puts "</select></td>"
+puts       "<td align=right><b>Time Servers:</b></td><td><select name='timeServer' size='2' multiple>"
+File.open($lov_timeserver).readlines.each do |fval|
+  puts "    <option selected='selected'>"+fval.strip+"</option>" end
+puts "</select></td>"
+puts "</tr>"
+
+puts "<table>"
+
+
+puts "<br><font size='+1'><b>Disks:</b></font><br>"
+
+puts "<table>"
+
+#disk1
+puts "<tr>"
+puts "<td align=left><b>1)&nbsp;&nbsp;</b></td>"
+puts "<td><select name='disk1_cn'>"
+File.open($lov_diskcn).readlines.each do |fval|
+  puts "    <option value='"+fval.strip+"'>"+fval.strip+"</option>"
+end
+puts "    </select></td>"
+puts "<td align=right><b>* Size (GB):</b></td><td><input type='text' size='3' name='disk1_size' value='72'></td>"
+puts "<td align=right><b>* Device Alias:</b></td><td><input type='text' size='15' name='disk1_deviceAlias'></td>"
+puts "<td align=right><b>* Interface:</b></td><td><input type='text' size='8' name='disk1_deviceInterface' value='SCSI'></td>"
+puts "<td align=right><b>Description:</b></td><td><input type='text' size='30' name='disk1_description'></td>"
+puts "</tr>"
+
+#disk2
+puts "<tr><td>&nbsp;</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>"
+puts "<tr>"
+puts "<td align=left><b>2)&nbsp;&nbsp;</b></td>"
+puts "<td><select name='disk2_cn'>"
+puts "    <option value='--' selected='selected'>--</option>"
+File.open($lov_diskcn).readlines.each do |fval|
+  case fval.strip
+    when "sda" 
+      nil
+    else 
+      puts "    <option value='"+fval.strip+"'>"+fval.strip+"</option>"
+  end
+end
+puts "    </select></td>"
+puts "<td align=right><b>Size (GB):</b></td><td><input type='text' size='3' name='disk2_size'></td>"
+puts "<td align=right><b>Device Alias:</b></td><td><input type='text' size='15' name='disk2_deviceAlias'></td>"
+puts "<td align=right><b>* Interface:</b></td><td><input type='text' size='8' name='disk2_deviceInterface' value='SCSI'></td>"
+puts "<td align=right><b>Description:</b></td><td><input type='text' size='30' name='disk2_description'></td>"
+puts "</tr>"
+
+puts "</table>"
+
+
+puts "<br><font size='+1'><b>NICs:</font></b><br>"
+
+# cn
+# ifcfgipaddress
+# ifcfgnetmask
+# ifcfggateway
+# ifcfghwaddr
+# 
+# ifcfgtype
+# ifcfgonboot
+# ifcfgbootproto
+# pxeboot
+# 
+# ifcfgvlan
+# ifcfgbridge
+# ifcfgmaster
+# ifcfgslave
+# 
+# ifcfgethtoolopts
+# ifcfgbondingopts
+# ifcfguserctl
+# ifcfgipv6init
+# 
+# description
+#
+puts "<table>"
+
+#nic1
+puts "<tr>"
+puts "<td align=left><b>1)&nbsp;&nbsp;</b></td>"
+puts "<td><select name='nic1_cn'>"
+File.open($lov_niccn).readlines.each do |fval|
+  if fval.strip == "eth0" then
+    puts "    <option value='"+fval.strip+"' selected='selected'>"+fval.strip+"</option>"
+  else
+    puts "    <option value='"+fval.strip+"'>"+fval.strip+"</option>"
+  end
+end
+puts "</select></td>"
+puts "<td align=right><b>* IP Address:</b></td><td><input type='text' size='16' name='nic1_ifcfgipaddress'></td>"
+puts "<td align=right><b>* Netmask:</b></td><td><input type='text' size='16' name='nic1_ifcfgnetmask' value='255.255.255.0'></td>"
+puts "<td align=right><b>* Gateway:</b></td><td><input type='text' size='16' name='nic1_ifcfggateway'></td>"
+puts "<td align=right><b>onBoot:</b></td><td><input type='checkbox' name='nic1_ifcfgonboot' value='TRUE' checked></td>"
+puts "</tr>"
+puts "<tr>"
+puts "<td></td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+puts "<td align=right><b>* IF Type:</b></td><td><input type='text' size='10' name='nic1_ifcfgtype' value='Ethernet'></td>"
+puts "<td align=right><b>mac Address:</b></td><td><input type='text' size='17' name='nic1_ifcfghwaddr'></td>"
+puts "<td align=right><b>Boot Proto:</b></td><td><input type='text' size='8' name='nic1_ifcfgbootproto' value='static'></td>"
+puts "<td align=right><b>pxeBoot:</b></td><td><input type='checkbox' name='nic1_pxeboot' value='TRUE' checked></td>"
+puts "</tr>"
+puts "<tr>"
+puts "<td></td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+puts "<td align=right><b>vLAN:</b></td><td><input type='checkbox' name='nic1_ifcfgvlan' value='FALSE'></td>"
+puts "<td align=right><b>Bridge:</b></td><td><input type='text' size='10' name='nic1_ifcfgbridge'></td>"
+puts "<td align=right><b>Master:</b></td><td><input type='text' size='10' name='nic1_ifcfgmaster'></td>"
+puts "<td align=right><b>Slave:</b></td><td><input type='checkbox' name='nic1_ifcfgslave' value='FALSE'></td>"
+puts "</tr>"
+puts "<tr>"
+puts "<td></td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+puts "<td align=right><b>Ethtool Opts:</b></td><td><input type='text' size='10' name='nic1_ifcfgethtoolopts'></td>"
+puts "<td align=right><b>Bond Opts:</b></td><td><input type='text' size='10' name='nic1_ifcfgbondingopts'></td>"
+puts "<td align=right><b>UserCtrl:</b></td><td><input type='checkbox' name='nic1_ifcfguserctl' value='FALSE'></td>"
+puts "<td align=right><b>IPv6:</b></td><td><input type='checkbox' name='nic1_ifcfgipv6init' value='FALSE'></td>"
+puts "</tr>"
+puts "<tr>"
+puts "<td></td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+puts "<td align=right><b>Description:</b></td><td colspan=3><input type='text' size='50' name='nic1_description'></td>"
+puts "</tr>"
+
+puts "<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>"
+
+#nic2
+puts "<tr>"
+puts "<td align=left><b>2)&nbsp;&nbsp;</b></td>"
+puts "<td><select name='nic2_cn'>"
+puts "    <option value='--' selected='selected'>--</option>"
+File.open($lov_niccn).readlines.each do |fval|
+  if fval.strip == "eth0" then
+    nil
+  else
+    puts "    <option value='"+fval.strip+"'>"+fval.strip+"</option>"
+  end
+end
+puts "    </select></td>"
+puts "<td align=right><b>* IP Address:</b></td><td><input type='text' size='16' name='nic2_ifcfgipaddress'></td>"
+puts "<td align=right><b>* Netmask:</b></td><td><input type='text' size='16' name='nic2_ifcfgnetmask' value='255.255.255.0'></td>"
+puts "<td align=right><b>* Gateway:</b></td><td><input type='text' size='16' name='nic2_ifcfggateway'></td>"
+puts "<td align=right><b>onBoot:</b></td><td><input type='checkbox' name='nic2_ifcfgonboot' value='TRUE' checked></td>"
+puts "</tr>"
+puts "<tr>"
+puts "<td></td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+puts "<td align=right><b>* IF Type:</b></td><td><input type='text' size='10' name='nic2_ifcfgtype' value='Ethernet'></td>"
+puts "<td align=right><b>mac Address:</b></td><td><input type='text' size='17' name='nic2_ifcfghwaddr'></td>"
+puts "<td align=right><b>Boot Proto:</b></td><td><input type='text' size='8' name='nic2_ifcfgbootproto' value='static'></td>"
+puts "<td align=right><b>pxeBoot:</b></td><td><input type='checkbox' name='nic2_pxeboot' value='FALSE'></td>"
+puts "</tr>"
+puts "<tr>"
+puts "<td></td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+puts "<td align=right><b>vLAN:</b></td><td><input type='checkbox' name='nic2_ifcfgvlan' value='FALSE'></td>"
+puts "<td align=right><b>Bridge:</b></td><td><input type='text' size='10' name='nic2_ifcfgbridge'></td>"
+puts "<td align=right><b>Master:</b></td><td><input type='text' size='10' name='nic2_ifcfgmaster'></td>"
+puts "<td align=right><b>Slave:</b></td><td><input type='checkbox' name='nic2_ifcfgslave' value='FALSE'></td>"
+puts "</tr>"
+puts "<tr>"
+puts "<td></td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+puts "<td align=right><b>Ethtool Opts:</b></td><td><input type='text' size='10' name='nic2_ifcfgethtoolopts'></td>"
+puts "<td align=right><b>Bond Opts:</b></td><td><input type='text' size='10' name='nic2_ifcfgbondingopts'></td>"
+puts "<td align=right><b>UserCtrl:</b></td><td><input type='checkbox' name='nic2_ifcfguserctl' value='FALSE'></td>"
+puts "<td align=right><b>IPv6:</b></td><td><input type='checkbox' name='nic2_ifcfgipv6init' value='FALSE'></td>"
+puts "</tr>"
+puts "<tr>"
+puts "<td></td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+puts "<td align=right><b>Description:</b></td><td colspan=3><input type='text' size='50' name='nic2_description'></td>"
+puts "</tr>"
+
+puts "<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>"
+
+#nic3
+puts "<tr>"
+puts "<td align=left><b>3)&nbsp;&nbsp;</b></td>"
+puts "<td><select name='nic3_cn'>"
+puts "    <option value='--' selected='selected'>--</option>"
+File.open($lov_niccn).readlines.each do |fval|
+  if fval.strip == "eth0" then
+    nil
+  else
+    puts "    <option value='"+fval.strip+"'>"+fval.strip+"</option>"
+  end
+end
+puts "    </select></td>"
+puts "<td align=right><b>* IP Address:</b></td><td><input type='text' size='16' name='nic3_ifcfgipaddress'></td>"
+puts "<td align=right><b>* Netmask:</b></td><td><input type='text' size='16' name='nic3_ifcfgnetmask' value='255.255.255.0'></td>"
+puts "<td align=right><b>* Gateway:</b></td><td><input type='text' size='16' name='nic3_ifcfggateway'></td>"
+puts "<td align=right><b>onBoot:</b></td><td><input type='checkbox' name='nic3_ifcfgonboot' value='TRUE' checked></td>"
+puts "</tr>"
+puts "<tr>"
+puts "<td></td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+puts "<td align=right><b>* IF Type:</b></td><td><input type='text' size='10' name='nic3_ifcfgtype' value='Ethernet'></td>"
+puts "<td align=right><b>mac Address:</b></td><td><input type='text' size='17' name='nic3_ifcfghwaddr'></td>"
+puts "<td align=right><b>Boot Proto:</b></td><td><input type='text' size='8' name='nic3_ifcfgbootproto' value='static'></td>"
+puts "<td align=right><b>pxeBoot:</b></td><td><input type='checkbox' name='nic3_pxeboot' value='FALSE'></td>"
+puts "</tr>"
+puts "<tr>"
+puts "<td></td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+puts "<td align=right><b>vLAN:</b></td><td><input type='checkbox' name='nic3_ifcfgvlan' value='FALSE'></td>"
+puts "<td align=right><b>Bridge:</b></td><td><input type='text' size='10' name='nic3_ifcfgbridge'></td>"
+puts "<td align=right><b>Master:</b></td><td><input type='text' size='10' name='nic3_ifcfgmaster'></td>"
+puts "<td align=right><b>Slave:</b></td><td><input type='checkbox' name='nic3_ifcfgslave' value='FALSE'></td>"
+puts "</tr>"
+puts "<tr>"
+puts "<td></td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+puts "<td align=right><b>Ethtool Opts:</b></td><td><input type='text' size='10' name='nic3_ifcfgethtoolopts'></td>"
+puts "<td align=right><b>Bond Opts:</b></td><td><input type='text' size='10' name='nic3_ifcfgbondingopts'></td>"
+puts "<td align=right><b>UserCtrl:</b></td><td><input type='checkbox' name='nic3_ifcfguserctl' value='FALSE'></td>"
+puts "<td align=right><b>IPv6:</b></td><td><input type='checkbox' name='nic3_ifcfgipv6init' value='FALSE'></td>"
+puts "</tr>"
+puts "<tr>"
+puts "<td></td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+puts "<td align=right><b>Description:</b></td><td colspan=3><input type='text' size='50' name='nic3_description'></td>"
+puts "</tr>"
+
+puts "<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>"
+
+#nic4
+puts "<tr>"
+puts "<td align=left><b>4)&nbsp;&nbsp;</b></td>"
+puts "<td><select name='nic4_cn'>"
+puts "    <option value='--' selected='selected'>--</option>"
+File.open($lov_niccn).readlines.each do |fval|
+  if fval.strip == "eth0" then
+    nil
+  else
+    puts "    <option value='"+fval.strip+"'>"+fval.strip+"</option>"
+  end
+end
+puts "    </select></td>"
+puts "<td align=right><b>* IP Address:</b></td><td><input type='text' size='16' name='nic4_ifcfgipaddress'></td>"
+puts "<td align=right><b>* Netmask:</b></td><td><input type='text' size='16' name='nic4_ifcfgnetmask' value='255.255.255.0'></td>"
+puts "<td align=right><b>* Gateway:</b></td><td><input type='text' size='16' name='nic4_ifcfggateway'></td>"
+puts "<td align=right><b>onBoot:</b></td><td><input type='checkbox' name='nic4_ifcfgonboot' value='TRUE' checked></td>"
+puts "</tr>"
+puts "<tr>"
+puts "<td></td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+puts "<td align=right><b>* IF Type:</b></td><td><input type='text' size='10' name='nic4_ifcfgtype' value='Ethernet'></td>"
+puts "<td align=right><b>mac Address:</b></td><td><input type='text' size='17' name='nic4_ifcfghwaddr'></td>"
+puts "<td align=right><b>Boot Proto:</b></td><td><input type='text' size='8' name='nic4_ifcfgbootproto' value='static'></td>"
+puts "<td align=right><b>pxeBoot:</b></td><td><input type='checkbox' name='nic4_pxeboot' value='FALSE'></td>"
+puts "</tr>"
+puts "<tr>"
+puts "<td></td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+puts "<td align=right><b>vLAN:</b></td><td><input type='checkbox' name='nic4_ifcfgvlan' value='FALSE'></td>"
+puts "<td align=right><b>Bridge:</b></td><td><input type='text' size='10' name='nic4_ifcfgbridge'></td>"
+puts "<td align=right><b>Master:</b></td><td><input type='text' size='10' name='nic4_ifcfgmaster'></td>"
+puts "<td align=right><b>Slave:</b></td><td><input type='checkbox' name='nic4_ifcfgslave' value='FALSE'></td>"
+puts "</tr>"
+puts "<tr>"
+puts "<td></td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+puts "<td align=right><b>Ethtool Opts:</b></td><td><input type='text' size='10' name='nic4_ifcfgethtoolopts'></td>"
+puts "<td align=right><b>Bond Opts:</b></td><td><input type='text' size='10' name='nic4_ifcfgbondingopts'></td>"
+puts "<td align=right><b>UserCtrl:</b></td><td><input type='checkbox' name='nic4_ifcfguserctl' value='FALSE'></td>"
+puts "<td align=right><b>IPv6:</b></td><td><input type='checkbox' name='nic4_ifcfgipv6init' value='FALSE'></td>"
+puts "</tr>"
+puts "<tr>"
+puts "<td></td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+puts "<td align=right><b>Description:</b></td><td colspan=3><input type='text' size='50' name='nic4_description'></td>"
+puts "</tr>"
+
+puts "<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>"
+
+#nic5
+puts "<tr>"
+puts "<td align=left><b>5)&nbsp;&nbsp;</b></td>"
+puts "<td><select name='nic5_cn'>"
+puts "    <option value='--' selected='selected'>--</option>"
+File.open($lov_niccn).readlines.each do |fval|
+  if fval.strip == "eth0" then
+    nil
+  else
+    puts "    <option value='"+fval.strip+"'>"+fval.strip+"</option>"
+  end
+end
+puts "    </select></td>"
+puts "<td align=right><b>* IP Address:</b></td><td><input type='text' size='16' name='nic5_ifcfgipaddress'></td>"
+puts "<td align=right><b>* Netmask:</b></td><td><input type='text' size='16' name='nic5_ifcfgnetmask' value='255.255.255.0'></td>"
+puts "<td align=right><b>* Gateway:</b></td><td><input type='text' size='16' name='nic5_ifcfggateway'></td>"
+puts "<td align=right><b>onBoot:</b></td><td><input type='checkbox' name='nic5_ifcfgonboot' value='TRUE' checked></td>"
+puts "</tr>"
+puts "<tr>"
+puts "<td></td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+puts "<td align=right><b>* IF Type:</b></td><td><input type='text' size='10' name='nic5_ifcfgtype' value='Ethernet'></td>"
+puts "<td align=right><b>mac Address:</b></td><td><input type='text' size='17' name='nic5_ifcfghwaddr'></td>"
+puts "<td align=right><b>Boot Proto:</b></td><td><input type='text' size='8' name='nic5_ifcfgbootproto' value='static'></td>"
+puts "<td align=right><b>pxeBoot:</b></td><td><input type='checkbox' name='nic5_pxeboot' value='FALSE'></td>"
+puts "</tr>"
+puts "<tr>"
+puts "<td></td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+puts "<td align=right><b>vLAN:</b></td><td><input type='checkbox' name='nic5_ifcfgvlan' value='FALSE'></td>"
+puts "<td align=right><b>Bridge:</b></td><td><input type='text' size='10' name='nic5_ifcfgbridge'></td>"
+puts "<td align=right><b>Master:</b></td><td><input type='text' size='10' name='nic5_ifcfgmaster'></td>"
+puts "<td align=right><b>Slave:</b></td><td><input type='checkbox' name='nic5_ifcfgslave' value='FALSE'></td>"
+puts "</tr>"
+puts "<tr>"
+puts "<td></td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+puts "<td align=right><b>Ethtool Opts:</b></td><td><input type='text' size='10' name='nic5_ifcfgethtoolopts'></td>"
+puts "<td align=right><b>Bond Opts:</b></td><td><input type='text' size='10' name='nic5_ifcfgbondingopts'></td>"
+puts "<td align=right><b>UserCtrl:</b></td><td><input type='checkbox' name='nic5_ifcfguserctl' value='FALSE'></td>"
+puts "<td align=right><b>IPv6:</b></td><td><input type='checkbox' name='nic5_ifcfgipv6init' value='FALSE'></td>"
+puts "</tr>"
+puts "<tr>"
+puts "<td></td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+puts "<td align=right><b>Description:</b></td><td colspan=3><input type='text' size='50' name='nic5_description'></td>"
+puts "</tr>"
+
+puts "<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>"
+
+#nic6
+puts "<tr>"
+puts "<td align=left><b>6)&nbsp;&nbsp;</b></td>"
+puts "<td><select name='nic6_cn'>"
+puts "    <option value='--' selected='selected'>--</option>"
+File.open($lov_niccn).readlines.each do |fval|
+  if fval.strip == "eth0" then
+    nil
+  else
+    puts "    <option value='"+fval.strip+"'>"+fval.strip+"</option>"
+  end
+end
+puts "    </select></td>"
+puts "<td align=right><b>* IP Address:</b></td><td><input type='text' size='16' name='nic6_ifcfgipaddress'></td>"
+puts "<td align=right><b>* Netmask:</b></td><td><input type='text' size='16' name='nic6_ifcfgnetmask' value='255.255.255.0'></td>"
+puts "<td align=right><b>* Gateway:</b></td><td><input type='text' size='16' name='nic6_ifcfggateway'></td>"
+puts "<td align=right><b>onBoot:</b></td><td><input type='checkbox' name='nic6_ifcfgonboot' value='TRUE' checked></td>"
+puts "</tr>"
+puts "<tr>"
+puts "<td></td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+puts "<td align=right><b>* IF Type:</b></td><td><input type='text' size='10' name='nic6_ifcfgtype' value='Ethernet'></td>"
+puts "<td align=right><b>mac Address:</b></td><td><input type='text' size='17' name='nic6_ifcfghwaddr'></td>"
+puts "<td align=right><b>Boot Proto:</b></td><td><input type='text' size='8' name='nic6_ifcfgbootproto' value='static'></td>"
+puts "<td align=right><b>pxeBoot:</b></td><td><input type='checkbox' name='nic6_pxeboot' value='FALSE'></td>"
+puts "</tr>"
+puts "<tr>"
+puts "<td></td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+puts "<td align=right><b>vLAN:</b></td><td><input type='checkbox' name='nic6_ifcfgvlan' value='FALSE'></td>"
+puts "<td align=right><b>Bridge:</b></td><td><input type='text' size='10' name='nic6_ifcfgbridge'></td>"
+puts "<td align=right><b>Master:</b></td><td><input type='text' size='10' name='nic6_ifcfgmaster'></td>"
+puts "<td align=right><b>Slave:</b></td><td><input type='checkbox' name='nic6_ifcfgslave' value='FALSE'></td>"
+puts "</tr>"
+puts "<tr>"
+puts "<td></td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+puts "<td align=right><b>Ethtool Opts:</b></td><td><input type='text' size='10' name='nic6_ifcfgethtoolopts'></td>"
+puts "<td align=right><b>Bond Opts:</b></td><td><input type='text' size='10' name='nic6_ifcfgbondingopts'></td>"
+puts "<td align=right><b>UserCtrl:</b></td><td><input type='checkbox' name='nic6_ifcfguserctl' value='FALSE'></td>"
+puts "<td align=right><b>IPv6:</b></td><td><input type='checkbox' name='nic6_ifcfgipv6init' value='FALSE'></td>"
+puts "</tr>"
+puts "<tr>"
+puts "<td></td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+puts "<td align=right><b>Description:</b></td><td colspan=3><input type='text' size='50' name='nic6_description'></td>"
+puts "</tr>"
+
+puts "<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>"
+
+#nic7
+puts "<tr>"
+puts "<td align=left><b>7)&nbsp;&nbsp;</b></td>"
+puts "<td><select name='nic7_cn'>"
+puts "    <option value='--' selected='selected'>--</option>"
+File.open($lov_niccn).readlines.each do |fval|
+  if fval.strip == "eth0" then
+    nil
+  else
+    puts "    <option value='"+fval.strip+"'>"+fval.strip+"</option>"
+  end
+end
+puts "    </select></td>"
+puts "<td align=right><b>* IP Address:</b></td><td><input type='text' size='16' name='nic7_ifcfgipaddress'></td>"
+puts "<td align=right><b>* Netmask:</b></td><td><input type='text' size='16' name='nic7_ifcfgnetmask' value='255.255.255.0'></td>"
+puts "<td align=right><b>* Gateway:</b></td><td><input type='text' size='16' name='nic7_ifcfggateway'></td>"
+puts "<td align=right><b>onBoot:</b></td><td><input type='checkbox' name='nic7_ifcfgonboot' value='TRUE' checked></td>"
+puts "</tr>"
+puts "<tr>"
+puts "<td></td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+puts "<td align=right><b>* IF Type:</b></td><td><input type='text' size='10' name='nic7_ifcfgtype' value='Ethernet'></td>"
+puts "<td align=right><b>mac Address:</b></td><td><input type='text' size='17' name='nic7_ifcfghwaddr'></td>"
+puts "<td align=right><b>Boot Proto:</b></td><td><input type='text' size='8' name='nic7_ifcfgbootproto' value='static'></td>"
+puts "<td align=right><b>pxeBoot:</b></td><td><input type='checkbox' name='nic7_pxeboot' value='FALSE'></td>"
+puts "</tr>"
+puts "<tr>"
+puts "<td></td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+puts "<td align=right><b>vLAN:</b></td><td><input type='checkbox' name='nic7_ifcfgvlan' value='FALSE'></td>"
+puts "<td align=right><b>Bridge:</b></td><td><input type='text' size='10' name='nic7_ifcfgbridge'></td>"
+puts "<td align=right><b>Master:</b></td><td><input type='text' size='10' name='nic7_ifcfgmaster'></td>"
+puts "<td align=right><b>Slave:</b></td><td><input type='checkbox' name='nic7_ifcfgslave' value='FALSE'></td>"
+puts "</tr>"
+puts "<tr>"
+puts "<td></td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+puts "<td align=right><b>Ethtool Opts:</b></td><td><input type='text' size='10' name='nic7_ifcfgethtoolopts'></td>"
+puts "<td align=right><b>Bond Opts:</b></td><td><input type='text' size='10' name='nic7_ifcfgbondingopts'></td>"
+puts "<td align=right><b>UserCtrl:</b></td><td><input type='checkbox' name='nic7_ifcfguserctl' value='FALSE'></td>"
+puts "<td align=right><b>IPv6:</b></td><td><input type='checkbox' name='nic7_ifcfgipv6init' value='FALSE'></td>"
+puts "</tr>"
+puts "<tr>"
+puts "<td></td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+puts "<td align=right><b>Description:</b></td><td colspan=3><input type='text' size='50' name='nic7_description'></td>"
+puts "</tr>"
+
+puts "<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>"
+
+#nic8
+puts "<tr>"
+puts "<td align=left><b>8)&nbsp;&nbsp;</b></td>"
+puts "<td><select name='nic8_cn'>"
+puts "    <option value='--' selected='selected'>--</option>"
+File.open($lov_niccn).readlines.each do |fval|
+  if fval.strip == "eth0" then
+    nil
+  else
+    puts "    <option value='"+fval.strip+"'>"+fval.strip+"</option>"
+  end
+end
+puts "    </select></td>"
+puts "<td align=right><b>* IP Address:</b></td><td><input type='text' size='16' name='nic8_ifcfgipaddress'></td>"
+puts "<td align=right><b>* Netmask:</b></td><td><input type='text' size='16' name='nic8_ifcfgnetmask' value='255.255.255.0'></td>"
+puts "<td align=right><b>* Gateway:</b></td><td><input type='text' size='16' name='nic8_ifcfggateway'></td>"
+puts "<td align=right><b>onBoot:</b></td><td><input type='checkbox' name='nic8_ifcfgonboot' value='TRUE' checked></td>"
+puts "</tr>"
+puts "<tr>"
+puts "<td></td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+puts "<td align=right><b>* IF Type:</b></td><td><input type='text' size='10' name='nic8_ifcfgtype' value='Ethernet'></td>"
+puts "<td align=right><b>mac Address:</b></td><td><input type='text' size='17' name='nic8_ifcfghwaddr'></td>"
+puts "<td align=right><b>Boot Proto:</b></td><td><input type='text' size='8' name='nic8_ifcfgbootproto' value='static'></td>"
+puts "<td align=right><b>pxeBoot:</b></td><td><input type='checkbox' name='nic8_pxeboot' value='FALSE'></td>"
+puts "</tr>"
+puts "<tr>"
+puts "<td></td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+puts "<td align=right><b>vLAN:</b></td><td><input type='checkbox' name='nic8_ifcfgvlan' value='FALSE'></td>"
+puts "<td align=right><b>Bridge:</b></td><td><input type='text' size='10' name='nic8_ifcfgbridge'></td>"
+puts "<td align=right><b>Master:</b></td><td><input type='text' size='10' name='nic8_ifcfgmaster'></td>"
+puts "<td align=right><b>Slave:</b></td><td><input type='checkbox' name='nic8_ifcfgslave' value='FALSE'></td>"
+puts "</tr>"
+puts "<tr>"
+puts "<td></td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+puts "<td align=right><b>Ethtool Opts:</b></td><td><input type='text' size='10' name='nic8_ifcfgethtoolopts'></td>"
+puts "<td align=right><b>Bond Opts:</b></td><td><input type='text' size='10' name='nic8_ifcfgbondingopts'></td>"
+puts "<td align=right><b>UserCtrl:</b></td><td><input type='checkbox' name='nic8_ifcfguserctl' value='FALSE'></td>"
+puts "<td align=right><b>IPv6:</b></td><td><input type='checkbox' name='nic8_ifcfgipv6init' value='FALSE'></td>"
+puts "</tr>"
+puts "<tr>"
+puts "<td></td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+puts "<td align=right><b>Description:</b></td><td colspan=3><input type='text' size='50' name='nic8_description'></td>"
+puts "</tr>"
+
+puts "<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>"
+
+#nic9
+puts "<tr>"
+puts "<td align=left><b>9)&nbsp;&nbsp;</b></td>"
+puts "<td><select name='nic9_cn'>"
+puts "    <option value='--' selected='selected'>--</option>"
+File.open($lov_niccn).readlines.each do |fval|
+  if fval.strip == "eth0" then
+    nil
+  else
+    puts "    <option value='"+fval.strip+"'>"+fval.strip+"</option>"
+  end
+end
+puts "    </select></td>"
+puts "<td align=right><b>* IP Address:</b></td><td><input type='text' size='16' name='nic9_ifcfgipaddress'></td>"
+puts "<td align=right><b>* Netmask:</b></td><td><input type='text' size='16' name='nic9_ifcfgnetmask' value='255.255.255.0'></td>"
+puts "<td align=right><b>* Gateway:</b></td><td><input type='text' size='16' name='nic9_ifcfggateway'></td>"
+puts "<td align=right><b>onBoot:</b></td><td><input type='checkbox' name='nic9_ifcfgonboot' value='TRUE' checked></td>"
+puts "</tr>"
+puts "<tr>"
+puts "<td></td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+puts "<td align=right><b>* IF Type:</b></td><td><input type='text' size='10' name='nic9_ifcfgtype' value='Ethernet'></td>"
+puts "<td align=right><b>mac Address:</b></td><td><input type='text' size='17' name='nic9_ifcfghwaddr'></td>"
+puts "<td align=right><b>Boot Proto:</b></td><td><input type='text' size='8' name='nic9_ifcfgbootproto' value='static'></td>"
+puts "<td align=right><b>pxeBoot:</b></td><td><input type='checkbox' name='nic9_pxeboot' value='FALSE'></td>"
+puts "</tr>"
+puts "<tr>"
+puts "<td></td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+puts "<td align=right><b>vLAN:</b></td><td><input type='checkbox' name='nic9_ifcfgvlan' value='FALSE'></td>"
+puts "<td align=right><b>Bridge:</b></td><td><input type='text' size='10' name='nic9_ifcfgbridge'></td>"
+puts "<td align=right><b>Master:</b></td><td><input type='text' size='10' name='nic9_ifcfgmaster'></td>"
+puts "<td align=right><b>Slave:</b></td><td><input type='checkbox' name='nic9_ifcfgslave' value='FALSE'></td>"
+puts "</tr>"
+puts "<tr>"
+puts "<td></td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+puts "<td align=right><b>Ethtool Opts:</b></td><td><input type='text' size='10' name='nic9_ifcfgethtoolopts'></td>"
+puts "<td align=right><b>Bond Opts:</b></td><td><input type='text' size='10' name='nic9_ifcfgbondingopts'></td>"
+puts "<td align=right><b>UserCtrl:</b></td><td><input type='checkbox' name='nic9_ifcfguserctl' value='FALSE'></td>"
+puts "<td align=right><b>IPv6:</b></td><td><input type='checkbox' name='nic9_ifcfgipv6init' value='FALSE'></td>"
+puts "</tr>"
+puts "<tr>"
+puts "<td></td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+puts "<td align=right><b>Description:</b></td><td colspan=3><input type='text' size='50' name='nic9_description'></td>"
+puts "</tr>"
+
+puts "<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>"
+
+#nic10
+puts "<tr>"
+puts "<td align=left><b>10)&nbsp;&nbsp;</b></td>"
+puts "<td><select name='nic10_cn'>"
+puts "    <option value='--' selected='selected'>--</option>"
+File.open($lov_niccn).readlines.each do |fval|
+  if fval.strip == "eth0" then
+    nil
+  else
+    puts "    <option value='"+fval.strip+"'>"+fval.strip+"</option>"
+  end
+end
+puts "    </select></td>"
+puts "<td align=right><b>* IP Address:</b></td><td><input type='text' size='16' name='nic10_ifcfgipaddress'></td>"
+puts "<td align=right><b>* Netmask:</b></td><td><input type='text' size='16' name='nic10_ifcfgnetmask' value='255.255.255.0'></td>"
+puts "<td align=right><b>* Gateway:</b></td><td><input type='text' size='16' name='nic10_ifcfggateway'></td>"
+puts "<td align=right><b>onBoot:</b></td><td><input type='checkbox' name='nic10_ifcfgonboot' value='TRUE' checked></td>"
+puts "</tr>"
+puts "<tr>"
+puts "<td></td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+puts "<td align=right><b>* IF Type:</b></td><td><input type='text' size='10' name='nic10_ifcfgtype' value='Ethernet'></td>"
+puts "<td align=right><b>mac Address:</b></td><td><input type='text' size='17' name='nic10_ifcfghwaddr'></td>"
+puts "<td align=right><b>Boot Proto:</b></td><td><input type='text' size='8' name='nic10_ifcfgbootproto' value='static'></td>"
+puts "<td align=right><b>pxeBoot:</b></td><td><input type='checkbox' name='nic10_pxeboot' value='FALSE'></td>"
+puts "</tr>"
+puts "<tr>"
+puts "<td></td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+puts "<td align=right><b>vLAN:</b></td><td><input type='checkbox' name='nic10_ifcfgvlan' value='FALSE'></td>"
+puts "<td align=right><b>Bridge:</b></td><td><input type='text' size='10' name='nic10_ifcfgbridge'></td>"
+puts "<td align=right><b>Master:</b></td><td><input type='text' size='10' name='nic10_ifcfgmaster'></td>"
+puts "<td align=right><b>Slave:</b></td><td><input type='checkbox' name='nic10_ifcfgslave' value='FALSE'></td>"
+puts "</tr>"
+puts "<tr>"
+puts "<td></td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+puts "<td align=right><b>Ethtool Opts:</b></td><td><input type='text' size='10' name='nic10_ifcfgethtoolopts'></td>"
+puts "<td align=right><b>Bond Opts:</b></td><td><input type='text' size='10' name='nic10_ifcfgbondingopts'></td>"
+puts "<td align=right><b>UserCtrl:</b></td><td><input type='checkbox' name='nic10_ifcfguserctl' value='FALSE'></td>"
+puts "<td align=right><b>IPv6:</b></td><td><input type='checkbox' name='nic10_ifcfgipv6init' value='FALSE'></td>"
+puts "</tr>"
+puts "<tr>"
+puts "<td></td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+puts "<td align=right><b>Description:</b></td><td colspan=3><input type='text' size='50' name='nic10_description'></td>"
+puts "</tr>"
+
+puts "<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>"
+
+#nic11
+puts "<tr>"
+puts "<td align=left><b>11)&nbsp;&nbsp;</b></td>"
+puts "<td><select name='nic11_cn'>"
+puts "    <option value='--' selected='selected'>--</option>"
+File.open($lov_niccn).readlines.each do |fval|
+  if fval.strip == "eth0" then
+    nil
+  else
+    puts "    <option value='"+fval.strip+"'>"+fval.strip+"</option>"
+  end
+end
+puts "    </select></td>"
+puts "<td align=right><b>* IP Address:</b></td><td><input type='text' size='16' name='nic11_ifcfgipaddress'></td>"
+puts "<td align=right><b>* Netmask:</b></td><td><input type='text' size='16' name='nic11_ifcfgnetmask' value='255.255.255.0'></td>"
+puts "<td align=right><b>* Gateway:</b></td><td><input type='text' size='16' name='nic11_ifcfggateway'></td>"
+puts "<td align=right><b>onBoot:</b></td><td><input type='checkbox' name='nic11_ifcfgonboot' value='TRUE' checked></td>"
+puts "</tr>"
+puts "<tr>"
+puts "<td></td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+puts "<td align=right><b>* IF Type:</b></td><td><input type='text' size='10' name='nic11_ifcfgtype' value='Ethernet'></td>"
+puts "<td align=right><b>mac Address:</b></td><td><input type='text' size='17' name='nic11_ifcfghwaddr'></td>"
+puts "<td align=right><b>Boot Proto:</b></td><td><input type='text' size='8' name='nic11_ifcfgbootproto' value='static'></td>"
+puts "<td align=right><b>pxeBoot:</b></td><td><input type='checkbox' name='nic11_pxeboot' value='FALSE'></td>"
+puts "</tr>"
+puts "<tr>"
+puts "<td></td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+puts "<td align=right><b>vLAN:</b></td><td><input type='checkbox' name='nic11_ifcfgvlan' value='FALSE'></td>"
+puts "<td align=right><b>Bridge:</b></td><td><input type='text' size='10' name='nic11_ifcfgbridge'></td>"
+puts "<td align=right><b>Master:</b></td><td><input type='text' size='10' name='nic11_ifcfgmaster'></td>"
+puts "<td align=right><b>Slave:</b></td><td><input type='checkbox' name='nic11_ifcfgslave' value='FALSE'></td>"
+puts "</tr>"
+puts "<tr>"
+puts "<td></td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+puts "<td align=right><b>Ethtool Opts:</b></td><td><input type='text' size='10' name='nic11_ifcfgethtoolopts'></td>"
+puts "<td align=right><b>Bond Opts:</b></td><td><input type='text' size='10' name='nic11_ifcfgbondingopts'></td>"
+puts "<td align=right><b>UserCtrl:</b></td><td><input type='checkbox' name='nic11_ifcfguserctl' value='FALSE'></td>"
+puts "<td align=right><b>IPv6:</b></td><td><input type='checkbox' name='nic11_ifcfgipv6init' value='FALSE'></td>"
+puts "</tr>"
+puts "<tr>"
+puts "<td></td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+puts "<td align=right><b>Description:</b></td><td colspan=3><input type='text' size='50' name='nic11_description'></td>"
+puts "</tr>"
+
+puts "<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>"
+
+#nic12
+puts "<tr>"
+puts "<td align=left><b>12)&nbsp;&nbsp;</b></td>"
+puts "<td><select name='nic12_cn'>"
+puts "    <option value='--' selected='selected'>--</option>"
+File.open($lov_niccn).readlines.each do |fval|
+  if fval.strip == "eth0" then
+    nil
+  else
+    puts "    <option value='"+fval.strip+"'>"+fval.strip+"</option>"
+  end
+end
+puts "    </select></td>"
+puts "<td align=right><b>* IP Address:</b></td><td><input type='text' size='16' name='nic12_ifcfgipaddress'></td>"
+puts "<td align=right><b>* Netmask:</b></td><td><input type='text' size='16' name='nic12_ifcfgnetmask' value='255.255.255.0'></td>"
+puts "<td align=right><b>* Gateway:</b></td><td><input type='text' size='16' name='nic12_ifcfggateway'></td>"
+puts "<td align=right><b>onBoot:</b></td><td><input type='checkbox' name='nic12_ifcfgonboot' value='TRUE' checked></td>"
+puts "</tr>"
+puts "<tr>"
+puts "<td></td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+puts "<td align=right><b>* IF Type:</b></td><td><input type='text' size='10' name='nic12_ifcfgtype' value='Ethernet'></td>"
+puts "<td align=right><b>mac Address:</b></td><td><input type='text' size='17' name='nic12_ifcfghwaddr'></td>"
+puts "<td align=right><b>Boot Proto:</b></td><td><input type='text' size='8' name='nic12_ifcfgbootproto' value='static'></td>"
+puts "<td align=right><b>pxeBoot:</b></td><td><input type='checkbox' name='nic12_pxeboot' value='FALSE'></td>"
+puts "</tr>"
+puts "<tr>"
+puts "<td></td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+puts "<td align=right><b>vLAN:</b></td><td><input type='checkbox' name='nic12_ifcfgvlan' value='FALSE'></td>"
+puts "<td align=right><b>Bridge:</b></td><td><input type='text' size='10' name='nic12_ifcfgbridge'></td>"
+puts "<td align=right><b>Master:</b></td><td><input type='text' size='10' name='nic12_ifcfgmaster'></td>"
+puts "<td align=right><b>Slave:</b></td><td><input type='checkbox' name='nic12_ifcfgslave' value='FALSE'></td>"
+puts "</tr>"
+puts "<tr>"
+puts "<td></td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+puts "<td align=right><b>Ethtool Opts:</b></td><td><input type='text' size='10' name='nic12_ifcfgethtoolopts'></td>"
+puts "<td align=right><b>Bond Opts:</b></td><td><input type='text' size='10' name='nic12_ifcfgbondingopts'></td>"
+puts "<td align=right><b>UserCtrl:</b></td><td><input type='checkbox' name='nic12_ifcfguserctl' value='FALSE'></td>"
+puts "<td align=right><b>IPv6:</b></td><td><input type='checkbox' name='nic12_ifcfgipv6init' value='FALSE'></td>"
+puts "</tr>"
+puts "<tr>"
+puts "<td></td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+puts "<td align=right><b>Description:</b></td><td colspan=3><input type='text' size='50' name='nic12_description'></td>"
+puts "</tr>"
+
+puts "<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>"
+
+puts "</table>"
+
+
+puts "  <br><input type='submit' value='Create Entry'>"
+puts "  &nbsp;&nbsp;<input type='reset' value='Reset Form'>"
+puts "</form>"
+
+
+puts "<font size=+1><a href='/cmdb/list'>Home</a></font>"
+
+output_page_footer
+
+exit 0
+

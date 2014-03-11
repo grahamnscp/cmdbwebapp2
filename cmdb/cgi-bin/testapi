@@ -1,0 +1,26 @@
+#!/usr/bin/ruby
+
+# Includes
+require 'helper.rb'
+require 'helper-satapi.rb'
+
+
+# 
+# Main
+#
+
+BEGIN { $VERBOSE = nil }
+
+output_page_header_list
+
+puts "<br>"
+puts "<pre>"
+
+test_api
+
+puts "</pre>"
+puts "<br>"
+
+output_page_footer
+exit 0
+

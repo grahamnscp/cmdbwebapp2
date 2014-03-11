@@ -1,0 +1,137 @@
+#!/usr/bin/ruby
+
+# Includes
+require 'helpersr.rb'
+
+
+#
+# Display serverRole entry
+#
+def display_server_role(serverrole)
+
+  puts "<table>"
+
+  puts "<tr>"
+  puts "<td align=right><b>Server Role:&nbsp;&nbsp;</b></td><td>"+ serverrole['cn'].to_s + "</td>"
+  puts "</tr>"
+
+  puts "<tr>"
+  puts "<td align=right><b>Descripton:&nbsp;&nbsp;</b></td><td>"+ serverrole['description'].to_s + "</td>"
+  puts "</tr>"
+
+  puts "<td align=right><b>puppetClass(es):&nbsp;&nbsp;</b></td><td>"
+  pccount = 0
+  if !serverrole['puppetClass'].nil? then
+    serverrole['puppetClass'].each do |pc|
+      if pccount>0 then puts "<br>" end
+      pccount = pccount + 1
+      puts pc.to_s
+    end
+  end
+  puts "</td>"
+  puts "</tr>"
+
+  puts "<td align=right><b>softwarePackage(s):&nbsp;&nbsp;</b></td><td>"
+  spcount = 0
+  if !serverrole['softwarePackage'].nil? then
+    serverrole['softwarePackage'].each do |sp|
+      if spcount>0 then puts "<br>" end
+      spcount = spcount + 1
+      puts sp.to_s
+    end
+  end
+  puts "</td>"
+  puts "</tr>"
+
+  puts "</table>"
+end
+
+
+# 
+# Main
+#
+output_page_header_list
+
+cgi = CGI.new
+params = cgi.params # hash with field-names and values
+
+cn = params['sr'].to_s if params.has_key?"sr"
+
+read_from_cmdb=true
+serverrole = Hash.new
+
+#Check to see if there was a form post:
+if !cgi['posted'].empty?
+then
+  # Form Post so populate entries from form data..
+  read_from_cmdb=nil
+  post_fields_valid=true
+
+  if params.has_key?"cn" and !params['cn'].to_s.empty? then
+    #puts "<p>cn='"+params['cn'].to_s+"'<br>" #########
+    #p params #########
+    cn = params['cn'].to_s.downcase 
+  else
+    post_fields_valid=nil
+    puts "<font size='+1' color='red'>Error, serverRole field cannot be blank!</font><br><br>"
+    puts "<form><input type='button' value='Back to form' onclick='history.go(-1);return true;'></form>"
+    exit 1
+  end
+  dn = "cn="+cn+","+$basedomainsr
+  #puts "<p>dn='"+dn+"'<br>" #########
+  serverrole[:objectclass]     = "serverRole"
+  serverrole[:cn]              = cn
+  serverrole[:description]     = params['description'].to_s if !params['description'].to_s.empty?
+  serverrole[:puppetClass]     = Array.new(params['puppetClasses'].to_s.split("\r\n")) if !params['puppetClasses'].to_s.empty?
+  serverrole[:softwarePackage] = Array.new(params['softwarePackages'].to_s.split("\r\n")) if !params['softwarePackages'].to_s.empty?
+
+  if !post_fields_valid
+    puts "<br>"
+    puts "<font size='+1' color=red>Cannot save server ("+ cn +") in CMDB, please go back and correct form data.</font><br><br>"
+    puts "<form><input type='button' value='Back to form' onclick='history.go(-1);return true;'></form>"
+    exit 1
+  end
+
+  # Persist to the database
+  result = persist_server_role(dn, serverrole)
+
+  if result.to_s == "true" then
+
+    if cgi['posted'] == "create" then puts "<br><font size='+1' color='red'>Your new serverRole has been saved:</font>" end
+    if cgi['posted'] == "edit" then puts "<br><font size='+1' color='red'>Your serverRole has been updated:</font>" end
+  else
+    puts "<br><font size='+1' color='red'>Something went wrong, entry not persisted to the CMDB</font>"
+  end
+
+end
+
+#
+# Read serverRole details and display
+#
+puts "<h1>Server Role Details: " + cn + "</h1>"
+
+serverrole = read_server_role(cn)
+
+if serverrole.to_s.empty? then
+  puts "<br>"
+  puts "<font size='+1' color=red>Something went wrong, server ("+ cn +") not found in CMDB</font><br><br>"
+  puts "<form><input type='button' value='Go Back' onclick='history.go(-1);return true;'></form>"
+  exit 1
+end
+
+dn = serverrole['dn'].to_s
+
+display_server_role(serverrole)
+
+
+puts "<br>"
+puts "<br>"
+puts "<table><tr>"
+puts "<td><font size=+1><a href='/cmdb/editsr?sr="+cn+"'>Edit</a></td><td>|&nbsp;</font></td>"
+puts "<td><font size=+1><a href='/cmdb/deletesr?sr="+cn+"'>Delete</a></td><td>|&nbsp;</font></td>"
+puts "<td><font size=+1><a href='/cmdb/listsr'>Server Role Home</a></font></td></tr></table>"
+
+output_page_footer
+
+exit 0
+

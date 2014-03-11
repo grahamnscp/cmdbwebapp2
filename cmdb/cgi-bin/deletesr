@@ -1,0 +1,63 @@
+#!/usr/bin/ruby
+
+# Includes
+require 'helpersr.rb'
+
+
+# 
+# Main
+#
+output_page_header_box
+
+cgi = CGI.new
+params = cgi.params # hash with field-names and values
+
+cn = params['sr'].to_s if params.has_key?"sr"
+
+#Check to see if there was a form post:
+if !cgi['posted'].empty?
+then
+  # Form Post so delete confirmed
+  #p params
+
+  if params.has_key?"cn" and !params['cn'].to_s.empty? then
+    cn = params['cn'].to_s  
+
+    # Delete the entry
+    result = delete_server_role(cn)
+
+    if result.to_s == "true" then
+      puts "<h2><center><blink><font size='+1' color=red><b>"+cn+" Server Role Entry Deleted!</b></font></blink></center></h2>"
+    else
+      puts "<center><font size='+1' color=red><b>Deletion of Server Role Entry: "+cn+" Failed!</b></font></center>"
+    end
+
+  else
+    puts "<font size='+1' color='red'>Error, Server Role name cannot be blank!</font><br><br>"
+    puts "<font size=+1><a href='/cmdb/listsr'>Server Role Home</a></font>"
+    exit 1
+  end
+
+else
+  
+  puts "<h1>Delete Server Role Entry: " + cn + " ?</h1>"
+
+  puts "<form Method='POST' action= '/cmdb/deletesr?sr="+cn+"'>"
+  puts "  <p><input type='hidden' name='cn' value='"+cn+"''>"
+  puts "  <p><input type='hidden' name='posted' value='delete'>"
+  puts "  <br><input type='submit' value='Please Confirm'>"
+  puts "</form>"
+
+  puts "<form><input type='button' value='Go Back' onclick='history.go(-1);return true;'></form>"
+
+end
+
+
+puts "<br>"
+puts "<br>"
+puts "<font size=+1><a href='/cmdb/listsr'>Server Role Home</a></font>"
+
+output_page_footer
+
+exit 0
+

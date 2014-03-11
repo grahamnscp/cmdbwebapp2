@@ -1,0 +1,61 @@
+#!/usr/bin/ruby
+
+# Includes
+require 'helper.rb'
+
+
+# 
+# Main
+#
+output_page_header_box
+
+cgi = CGI.new
+params = cgi.params
+
+fqdn = params['fqdn'].to_s if params.has_key?"fqdn"
+
+# Check to see if there was a form post:
+if !cgi['posted'].empty?
+then
+ # Form Post so delete confirmed
+ #p params
+
+ if params.has_key?"fqdn" and !params['fqdn'].to_s.empty? then
+   fqdn = params['fqdn'].to_s
+
+   # Delete the entry
+   result = delete_entry_by_fqdn fqdn
+
+   if result.to_s == "true" then
+     puts "<h2><center><blink><font size='+1' color=red><b>"+fqdn+" Server Entry Deleted!</b></font></blink></center></h2>"
+   else
+     puts "<center><font size='+1' color=red><b>Deletion of Server Entry: "+fqdn+" Failed!</b></font></center>"
+   end
+ 
+ else
+   puts "<font size='+1' color='red'>Error, Server fqdn cannot be blank!</font><br><br>"
+   puts "<font size=+1><a href='/cmdb/list'>Home</a></font>"
+   exit 1
+ end
+
+else 
+
+  puts "<h1>Delete Server Entry: " + fqdn + "</h1>"
+
+  puts "<form Method='POST' action= '/cmdb/delete?fqdn="+fqdn+"'>"
+  puts "  <p><input type='hidden' name='fqdn' value='"+fqdn+"''>"
+  puts "  <p><input type='hidden' name='posted' value='delete'>"
+  puts "  <br><input type='submit' value='Please Confirm'>"
+  puts "</form>"
+
+  puts "<form><input type='button' value='Go Back' onclick='history.go(-1);return true;'></form>"
+end
+
+puts "<br>"
+puts "<br>"
+puts "<font size=+1><a href='/cmdb/list'>Home</a></font>"
+
+output_page_footer
+
+exit 0
+

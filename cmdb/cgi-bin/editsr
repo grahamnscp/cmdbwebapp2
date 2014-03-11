@@ -1,0 +1,90 @@
+#!/usr/bin/ruby
+
+# Includes
+require 'helpersr.rb'
+
+
+# 
+# Main
+#
+output_page_header
+
+cgi = CGI.new
+params = cgi.params # hash with field-names and values
+
+cn = params['sr'].to_s if params.has_key?"sr"
+
+read_from_cmdb=true
+serverrole = Hash.new
+
+puts "<h1>Server Role Entry Edit: " + cn + "</h1>"
+
+# Read system from CMDB:
+serverrole = read_server_role(cn)
+
+if serverrole.to_s.empty? then
+  puts "<br>"
+  puts "<font size='+1' color=red>Something went wrong, serverRole ("+ cn +") not found in CMDB</font><br><br>"
+  puts "<form><input type='button' value='Go Back' onclick='history.go(-1);return true;'></form>"
+  exit 1
+end
+
+# Break out the dn for children lookups
+dn = serverrole['dn'].to_s
+
+#puts "serverrole entry: " #######
+#p serverrole #######
+#puts "<br>" #######
+
+puts "<form Method='POST' action= '/cmdb/showsr'>"
+
+puts "  <p><input type='hidden' name='posted' value='edit'>"
+
+puts "<table>"
+
+puts "<tr>"
+# hostName, cn, dn
+puts "<td align=right><b>* Server Role Name:</b></td><td>"+serverrole['cn'].to_s+"</td>"
+puts "  <p><input type='hidden' name='cn' value='"+serverrole['cn'].to_s+"'>"
+puts "  <p><input type='hidden' name='serverRole' value='"+serverrole['cn'].to_s+"'>"
+puts "</td></tr>"
+
+# description
+puts "<td align=right><b>Description:</b></td><td>"
+puts "  <input type='text' size='60' name='description' value='"+serverrole['description'].to_s+"'><br>"
+puts "</td></tr>"
+
+# puppetClass textbox, multiple entries on new lines
+puts "<tr>"
+puts "<td align=right><b>Puppet Classes:</b></td><td>"
+puts "  <textarea name='puppetClasses' cols='50'rows='10'>"
+# Populate with values from CMDB
+puts serverrole['puppetClass']
+puts "</textarea>"
+puts "</td>"
+puts "</tr>"
+#
+# softwarePackage textbox, multiple entries on new lines
+puts "<tr>"
+puts "<td align=right><b>Software Packages:</b></td><td>"
+puts "  <textarea name='softwarePackages' cols='50'rows='10'>"
+# Populate with values from CMDB
+puts serverrole['softwarePackage']
+puts "</textarea>"
+puts "</td>"
+puts "</tr>"
+
+puts "</table>"
+
+puts "<br>"
+puts "  <br><input type='submit' value='Update Server Role Entry'>"
+puts "</form>"
+
+
+puts "<br>"
+puts "<font size=+1><a href='/cmdb/listsr'>Server Role Home</a></font>"
+
+output_page_footer
+
+exit 0
+

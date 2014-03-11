@@ -1,0 +1,65 @@
+#!/usr/bin/ruby
+
+# Includes
+require 'helper.rb'
+
+#
+# resd_servers
+#
+def read_servers
+
+  filter = Net::LDAP::Filter.eq( "objectclass", "managedServer" )
+  attrs = [ ]
+
+  print <<EOF
+      <h1>System List:</h1>
+
+      <table>
+        <tr>
+          <th align=left>Hostname&nbsp;&nbsp;&nbsp;</th>
+          <th align=left>Location</th>
+          <th align=left>Model</th>
+          <th align=left>Memory</th>
+          <th align=left>OS Version</th>
+          <th align=left>cobblerProfile</th>
+          <th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+          <th></th>
+          <th></th>
+          <th></th>
+        </tr>
+EOF
+
+  $conn.search(:base => $basedomain,
+               :filter => filter) do |entry|
+    #p entry
+    puts "        <tr>"
+    puts "          <td>#{entry.cn}</td>"
+    puts "          <td>#{entry.location}&nbsp;&nbsp;</td>"
+    if !entry[:model].to_s.empty? then puts "<td>#{entry.model}&nbsp;&nbsp;</td>" else puts "<td>&nbsp;</td>" end
+    if !entry[:memory].to_s.empty? then puts "<td>#{entry.memory}&nbsp;&nbsp;</td>" else puts "<td>&nbsp;</td>" end
+    puts "          <td>#{entry.osVersion}&nbsp;&nbsp;</td>"
+    puts "          <td>#{entry.cobblerProfile}</td>"
+    puts "          <td></td>"
+    puts "          <td><a href='/cmdb/show?fqdn=#{entry.hostName}'>Show</a></td>"
+    puts "          <td>|&nbsp;</td>"
+    puts "          <td><a href='/cmdb/edit?fqdn=#{entry.hostName}'>Edit</a></td>"
+  end
+  puts "      </table>"
+end
+
+# 
+# Main
+#
+output_page_header_list
+
+read_servers
+
+puts "<br>"
+puts "<font size=+1><a href='/cmdb/create'>Create New</a></font>"
+puts "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
+puts "<font size=+1><a href='/cmdb/listsr'>Manage Server Roles</a></font>"
+
+
+output_page_footer
+exit 0
+

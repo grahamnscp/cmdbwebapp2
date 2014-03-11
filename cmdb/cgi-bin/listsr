@@ -1,0 +1,55 @@
+#!/usr/bin/ruby
+
+# Includes
+require 'helpersr.rb'
+
+#
+# resd_servers
+#
+def read_serverroles
+
+  filter = Net::LDAP::Filter.eq( "objectclass", "serverRole" )
+  attrs = [ ]
+
+  print <<EOF
+      <h1>Server Role Entries:</h1>
+
+      <table>
+        <tr>
+          <th align=left>Server Role&nbsp;&nbsp;&nbsp;</th>
+          <th align=left>Description</th>
+          <th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+          <th></th>
+          <th></th>
+          <th></th>
+        </tr>
+EOF
+
+  $conn.search(:base => $basedomainsr,
+               :filter => filter) do |entry|
+    puts "        <tr>"
+    puts "          <td>#{entry.cn}</td>"
+    puts "          <td>#{entry.description}&nbsp;&nbsp;</td>"
+    puts "          <td></td>"
+    puts "          <td><a href='/cmdb/showsr?sr=#{entry.cn}'>Show</a></td>"
+    puts "          <td>|&nbsp;</td>"
+    puts "          <td><a href='/cmdb/editsr?sr=#{entry.cn}'>Edit</a></td>"
+  end
+  puts "      </table>"
+end
+
+# 
+# Main
+#
+output_page_header_list
+
+read_serverroles
+
+puts "<br>"
+puts "<font size=+1><a href='/cmdb/createsr'>Create New Server Role</a></font>"
+puts "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
+puts "<font size=+1><a href='/cmdb/list'>Manage CMDB Servers</a></font>"
+
+output_page_footer
+exit 0
+

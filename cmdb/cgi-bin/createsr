@@ -1,0 +1,63 @@
+#!/usr/bin/ruby
+
+# Includes
+require 'helpersr.rb'
+
+
+# 
+# Main
+#
+output_page_header
+
+puts "<h1>System Server Role Entry:</h1>"
+
+puts "<form Method='POST' action= '/cmdb/showsr'>"
+
+puts "  <p><input type='hidden' name='posted' value='create'>"
+
+puts "<table>"
+
+puts "<tr>"
+#hostName, cn, dn
+puts "<td align=right><b>* serverRole Name:</b></td><td><input type='text' size='15' name='cn'></td>"
+puts "</tr>"
+
+# description
+puts "<tr>"
+puts "<td align=right><b>Description:</b></td><td>"
+puts "  <input type='text' size='60' name='description' value=''><br>"
+puts "</td>"
+puts "</tr>"
+
+# puppetClass textbox, multiple entries on new lines
+puts "<tr>"
+puts "<td align=right><b>Puppet Classes:</b></td><td>"
+puts "  <textarea name='puppetClasses' cols='50'rows='10'></textarea>"
+puts "</td>"
+puts "</tr>"
+
+# softwarePackage textbox, multiple entries on new lines
+puts "<tr>"
+puts "<td align=right><b>Software Packages:</b></td><td>"
+puts "  <textarea name='softwarePackages' cols='50'rows='10'></textarea>"
+puts "</td>"
+puts "</tr>"
+
+
+puts "</table>"
+
+puts "<br>"
+puts "<br>"
+puts "  <br><input type='submit' value='Create Entry'>"
+puts "  &nbsp;&nbsp;<input type='reset' value='Reset Form'>"
+puts "</form>"
+
+
+puts "<br>"
+puts "<br>"
+puts "<font size=+1><a href='/cmdb/listsr'>Server Role Home</a></font>"
+
+output_page_footer
+
+exit 0
+
